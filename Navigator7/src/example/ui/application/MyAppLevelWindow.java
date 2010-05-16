@@ -2,6 +2,7 @@ package example.ui.application;
 
 import java.util.Collection;
 
+import org.vaadin.navigator7.WebApplication;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
 import org.vaadin.navigator7.Navigator.NavigationListener;
 import org.vaadin.navigator7.window.HeaderFooterFixedAppLevelWindow;
@@ -63,7 +64,7 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
         //                getNavigator().navigateTo(Ticket.class);
         //            }
         //        });
-        Collection<Class <? extends Component>> pageClassColl = MyNavigableApplication.getCurrent().getNavigatorConfig().getPagesClass();
+        Collection<Class <? extends Component>> pageClassColl = WebApplication.getInstance().getNavigatorConfig().getPagesClass();
         for (final Class<? extends Component> pageClass : pageClassColl) {
             menuBar.addItem(pageClass.getSimpleName(), new MenuBar.Command() {
                 public void menuSelected(MenuItem selectedItem) {

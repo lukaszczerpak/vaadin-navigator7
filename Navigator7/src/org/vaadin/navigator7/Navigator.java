@@ -2,7 +2,6 @@ package org.vaadin.navigator7;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.vaadin.navigator7.window.NavigableAppLevelWindow;
@@ -16,7 +15,6 @@ import com.vaadin.ui.UriFragmentUtility;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.UriFragmentUtility.FragmentChangedEvent;
 import com.vaadin.ui.UriFragmentUtility.FragmentChangedListener;
 
@@ -30,17 +28,12 @@ public class Navigator
             implements FragmentChangedListener {
 
     UriFragmentUtility uriFragmentUtility;
-    transient NavigatorConfig navigatorConfig;
-    transient UriAnalyzer uriAnalyzer; 
     
     NavigatorWarningDialogMaker navigatorWarningDialogMaker = new DefaultNavigatorWarningDialogMaker(); 
     
     protected List<NavigationListener> navigationListenerList = new ArrayList<NavigationListener>();
 
-    public Navigator(NavigatorConfig aNavigatorConfig, UriAnalyzer aUriAnalyzer) {
-        this.navigatorConfig = aNavigatorConfig;
-        this.uriAnalyzer = aUriAnalyzer;
-        
+    public Navigator() {
         // To handle the url changes and for bookmarking.
         uriFragmentUtility = new UriFragmentUtility();
         uriFragmentUtility.addListener(this);
@@ -59,20 +52,20 @@ public class Navigator
         String fragment = source.getUriFragmentUtility().getFragment();
 
         // Get the pageName and params from the URI
-        String[] names = getUriAnalyzer().extractPageNameAndParamsFromFragment(fragment);
+        String[] names = WebApplication.getInstance().getUriAnalyzer().extractPageNameAndParamsFromFragment(fragment);
         String pageName = names[0];
         final String params = names[1];
 
         // Get the page class from the page name.
         Class<? extends Component> pageClass;
         if (pageName == null) {
-            pageClass = navigatorConfig.getHomePageClass();
+            pageClass = WebApplication.getInstance().getNavigatorConfig().getHomePageClass();
         } else {
             // Do we know that name (that URI) ?
-            pageClass = navigatorConfig.getPageClass(pageName);
+            pageClass = WebApplication.getInstance().getNavigatorConfig().getPageClass(pageName);
             if (pageClass == null) {  // Page does not exist in our config (url hacking?)
                 handleInvalidUri();
-                pageClass = navigatorConfig.getHomePageClass();
+                pageClass = WebApplication.getInstance().getNavigatorConfig().getHomePageClass();
             }
         }
 
@@ -112,7 +105,7 @@ public class Navigator
     /** Rebuild (reinstantiates) the current page, and calls the PageParamListener (the page) with the current parameters (to display/select the right data). */
     public void reloadCurrentPage(){
         // We need the params (we already know the screen name and class).
-        String[] fragment = getUriAnalyzer().extractPageNameAndParamsFromFragment(uriFragmentUtility.getFragment());
+        String[] fragment = WebApplication.getInstance().getUriAnalyzer().extractPageNameAndParamsFromFragment(uriFragmentUtility.getFragment());
         String params;
         if (fragment != null && fragment.length > 1)  {
             params = fragment[1];
@@ -148,14 +141,14 @@ public class Navigator
     // SEE: http://vaadin.com/forum/-/message_boards/message/57240
     //   Probably to be removed with Vaadin 7 and the notion of application level window.
     public void initializeHomePageAsFristPage() {
-        instantiateAndPlacePageWithoutChangingUri(navigatorConfig.getHomePageClass(), null);
+        instantiateAndPlacePageWithoutChangingUri(WebApplication.getInstance().getNavigatorConfig().getHomePageClass(), null);
     }
 
     
     // Pass part of the url to the screen (that has its own conventions for analyzing it)
     @SuppressWarnings("unchecked")
     protected void notifyParamsChangedListener(Component page, String params) {
-        NavigationEvent event = new NavigationEvent(this, uriAnalyzer, page.getClass(), params);
+        NavigationEvent event = new NavigationEvent(this, WebApplication.getInstance().getUriAnalyzer(), page.getClass(), params);
         if (page instanceof ParamChangeListener) {  
             ((ParamChangeListener)page).paramChanged(event);
         } 
@@ -185,7 +178,7 @@ public class Navigator
             throw new IllegalStateException("There is no current page. There should be at this late stage, when this method is called.");
         }
         
-        uriFragmentUtility.setFragment(getUriAnalyzer().buildFragmentFromPageAndParameters(currentPage.getClass(), params, false), false);
+        uriFragmentUtility.setFragment(WebApplication.getInstance().getUriAnalyzer().buildFragmentFromPageAndParameters(currentPage.getClass(), params, false), false);
     }
 
 
@@ -314,18 +307,8 @@ public class Navigator
 
     
     
-    public NavigatorConfig getNavigatorConfig() {
-        return navigatorConfig;
-    }
-
-
-    public UriAnalyzer getUriAnalyzer() {
-        return uriAnalyzer;
-    }
-
-
     public void notifyNavigationListenersPageChanged(Class<? extends Component> pageClass, String params) {
-        NavigationEvent event = new NavigationEvent(this, uriAnalyzer, pageClass, params);
+        NavigationEvent event = new NavigationEvent(this, WebApplication.getInstance().getUriAnalyzer(), pageClass, params);
         for (NavigationListener navL : navigationListenerList) {
             navL.pageChanged(event);
         }

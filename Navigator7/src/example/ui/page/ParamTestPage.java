@@ -3,6 +3,7 @@ package example.ui.page;
 import org.vaadin.navigator7.NavigableApplication;
 import org.vaadin.navigator7.PageResource;
 import org.vaadin.navigator7.ParamUriAnalyzer;
+import org.vaadin.navigator7.WebApplication;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
 import org.vaadin.navigator7.Navigator.ParamChangeListener;
 
@@ -64,7 +65,7 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
         hl.addComponent(col2);
         col2.addComponent(new Label("Invalid examples:"));
 
-        ParamUriAnalyzer analyzer = NavigableApplication.getCurrent().getUriAnalyzer();
+        ParamUriAnalyzer analyzer = WebApplication.getInstance().getUriAnalyzer();
         
         pr = new PageResource(ParamTestPage.class, analyzer.getFragment("userId", "AAA"));
         // Alternative: pr = new PageResource(ParamTestPage.class, "userId=AAA");
@@ -96,7 +97,7 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
 
     @Override
     public void paramChanged(NavigationEvent event) {
-        ParamUriAnalyzer analyzer = MyNavigableApplication.getCurrent().getUriAnalyzer();
+        ParamUriAnalyzer analyzer = WebApplication.getInstance().getUriAnalyzer();
         
         // 1st parameter.
         String nameAndCountry = analyzer.getMandatoryString(event.getParams(), 0);  // Position 0.

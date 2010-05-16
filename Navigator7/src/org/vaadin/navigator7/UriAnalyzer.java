@@ -44,7 +44,7 @@ public class UriAnalyzer {
         if ("".equals(params)) {
             params = null;  // One case for both.
         }
-        NavigatorConfig navigatorConfig = NavigableApplication.getCurrent().getNavigatorConfig();
+        NavigatorConfig navigatorConfig = WebApplication.getInstance().getNavigatorConfig();
         Class<? extends Component> homePageClass = navigatorConfig.getHomePageClass();
         
         String pageName = navigatorConfig.getPageName(pageClass);

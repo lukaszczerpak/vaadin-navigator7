@@ -17,36 +17,21 @@ import com.vaadin.ui.Window;
  */
 public abstract class NavigableApplication extends Application implements TransactionListener {
 
-    transient protected NavigatorConfig navigatorConfig;
+    private static final long serialVersionUID = 1L;
     
-    /** Don't hesitate to change this value with another descendant of UriAnalyser in your constructor's descendant. */
-    transient protected ParamUriAnalyzer uriAnalyzer = new ParamUriAnalyzer();  
-
+    
     static protected ThreadLocal<NavigableApplication> currentApplication = new ThreadLocal<NavigableApplication>();
     static protected ThreadLocal<NavigableAppLevelWindow> currentNavigableAppLevelWindow = new ThreadLocal<NavigableAppLevelWindow>();
     static protected ThreadLocal<String> veryInitialUriFragment = new ThreadLocal<String>();  // Trick until further version of Vaadin. See comment in transactionListener below
 
     
     
-    public NavigableApplication() {
-        navigatorConfig = new NavigatorConfig();
-    }
-    
-    public void registerPages(Class[] pageClasses) {
-        navigatorConfig.registerPages(pageClasses);
-    }
-
-    /** Scans the pages annotated with @Page in the classpath, for the sub-package of the package given as parameter */
-    public void registerPages(String packageName) {
-        // do some scanning of @Page annotated classes and add them to the navigator.
-        navigatorConfig.registerPages(packageName);
-    }
 
     /** Don't override me, because you are not supposed to create any window by yourself (yes, I dare, I close the API with final ;-) */
     @Override
     public final void init() {
         // Defensive programming.
-        if (navigatorConfig.getPagesClass().size() == 0) {
+        if (WebApplication.getInstance().getNavigatorConfig().getPagesClass().size() == 0) {
             throw new IllegalStateException("No page in configuration. You should register pages in the constructor of your NavigableApplication sub-class," +
             		" typically by calling NavigableApplication.registerPages() method." +
             		" If you did, then no page has been found. Check your settings as the presence of the @Page annotation on your pages.");
@@ -198,14 +183,7 @@ public abstract class NavigableApplication extends Application implements Transa
         veryInitialUriFragment.remove();
     }
 
-    public NavigatorConfig getNavigatorConfig() {
-        return navigatorConfig;
-    }
 
-    public ParamUriAnalyzer getUriAnalyzer() {
-        return uriAnalyzer;
-    }
-    
     
 
 

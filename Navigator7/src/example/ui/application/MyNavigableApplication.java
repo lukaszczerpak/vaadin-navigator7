@@ -1,6 +1,7 @@
 package example.ui.application;
 
 import org.vaadin.navigator7.NavigableApplication;
+import org.vaadin.navigator7.WebApplication;
 import org.vaadin.navigator7.window.NavigableAppLevelWindow;
 
 import example.ui.page.Dashboard;
@@ -22,7 +23,7 @@ public class MyNavigableApplication extends NavigableApplication {
     
     public MyNavigableApplication() {
         // We need to do that in the constructor (and not later), to ensure that the init method in the ancestor has the PageTemplate and the pages.
-        registerPages(new Class[] {Dashboard.class, Editor.class, Ticket.class, ParamTestPage.class});
+        WebApplication.getInstance().registerPages(new Class[] {Dashboard.class, Editor.class, Ticket.class, ParamTestPage.class});
         setTheme("navigator7");
     }
 

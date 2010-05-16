@@ -1,9 +1,8 @@
 package org.vaadin.navigator7;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import com.vaadin.ui.Component;
 
@@ -12,7 +11,7 @@ import com.vaadin.ui.Component;
  * 
  * @author John Rizzo - BlackBeltFactory.com
  */
-public class NavigatorConfig {
+public class NavigatorConfig implements Serializable {
     
     // The key is lowercase. For example, with the value AuctionEditorPage.class, we have the key "auctioneditor" in this map. The goal is to be key insesitive when accepting incoming uris. 
     private HashMap<String, Class<? extends Component>> uriToClass = new HashMap<String, Class<? extends Component>>();

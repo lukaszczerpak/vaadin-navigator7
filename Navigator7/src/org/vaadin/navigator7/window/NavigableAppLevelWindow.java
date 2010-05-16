@@ -2,6 +2,7 @@ package org.vaadin.navigator7.window;
 
 import org.vaadin.navigator7.NavigableApplication;
 import org.vaadin.navigator7.Navigator;
+import org.vaadin.navigator7.WebApplication;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
@@ -31,7 +32,7 @@ public abstract class NavigableAppLevelWindow extends AppLevelWindow {
         this.setContent(main);    
 
         // Must be done after calling this.setConent(main), as for any component added to the window.
-        this.navigator = new Navigator(getNavigableApplication().getNavigatorConfig(), getNavigableApplication().getUriAnalyzer());
+        this.navigator = new Navigator();
         this.addComponent(navigator);
 
         pageContainer = createComponents();  // Let descendants add components in this.getContent().

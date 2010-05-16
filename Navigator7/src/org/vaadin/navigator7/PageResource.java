@@ -19,7 +19,7 @@ public class PageResource extends ExternalResource{
     }
 
     public PageResource(Class<? extends Component> pageClass, String params) {
-        super(NavigableApplication.getCurrent().getUriAnalyzer().buildFragmentFromPageAndParameters(pageClass, params, true) );
+        super(WebApplication.getInstance().getUriAnalyzer().buildFragmentFromPageAndParameters(pageClass, params, true) );
         // For example  "#Auction/123456"
     }
 
