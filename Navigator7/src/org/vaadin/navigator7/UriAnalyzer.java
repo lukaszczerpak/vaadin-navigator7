@@ -41,6 +41,9 @@ public class UriAnalyzer {
      * @param params may be null if no param.
      * @param withAnchor true means you want a # in front of the result (as "#Auction/1234"  */
     public String buildFragmentFromPageAndParameters(Class<? extends Component> pageClass, String params, boolean withAnchor) {
+        if ("".equals(params)) {
+            params = null;  // One case for both.
+        }
         NavigatorConfig navigatorConfig = NavigableApplication.getCurrent().getNavigatorConfig();
         Class<? extends Component> homePageClass = navigatorConfig.getHomePageClass();
         

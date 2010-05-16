@@ -75,7 +75,7 @@ public abstract class NavigableApplication extends Application implements Transa
         }
     }
     
-    public NavigableAppLevelWindow createNewNavigableAppLevelWindow(String name) {
+    private NavigableAppLevelWindow createNewNavigableAppLevelWindow(String name) {
         NavigableAppLevelWindow appLevelWindow = createNewNavigableAppLevelWindow();
         appLevelWindow.setName(name);   // Thank to this name, we can easily sort application level windows from floating windows (dialog boxes).
                                             // we could leave the name null and it would be set to a random number "012345679", but the form "AppLevelWindow_0123456789" is probably clearer when debugging.

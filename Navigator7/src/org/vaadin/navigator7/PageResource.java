@@ -9,6 +9,11 @@ import com.vaadin.ui.Component;
  */
 public class PageResource extends ExternalResource{
 
+    // Because Java does not support constructor inheritance.
+    public PageResource(String url) {
+        super(url);
+    }
+    
     public PageResource(Class<? extends Component> pageClass) {
         this(pageClass, null);
     }

@@ -30,8 +30,8 @@ public class Navigator
             implements FragmentChangedListener {
 
     UriFragmentUtility uriFragmentUtility;
-    NavigatorConfig navigatorConfig;
-    UriAnalyzer uriAnalyzer; 
+    transient NavigatorConfig navigatorConfig;
+    transient UriAnalyzer uriAnalyzer; 
     
     NavigatorWarningDialogMaker navigatorWarningDialogMaker = new DefaultNavigatorWarningDialogMaker(); 
     
@@ -86,7 +86,7 @@ public class Navigator
             instantiateAndPlacePageWithoutChangingUri(pageClass, params);
         } else {
             // We don't reinstantiate the page, we just warn it that its parameters changed.
-            notifyParamsChangedListener(pageClass, params);
+            notifyParamsChangedListener(currentPage, params);
         }
     }
 
@@ -140,7 +140,7 @@ public class Navigator
 
         getNavigableAppLevelWindow().changePage(page);
         
-        notifyParamsChangedListener(pageClass, params);
+        notifyParamsChangedListener(page, params);
         notifyNavigationListenersPageChanged(pageClass, params);
     }
     
@@ -154,11 +154,10 @@ public class Navigator
     
     // Pass part of the url to the screen (that has its own conventions for analyzing it)
     @SuppressWarnings("unchecked")
-    protected void notifyParamsChangedListener(Class<? extends Component> pageClass, String params) {
-        NavigationEvent event = new NavigationEvent(this, uriAnalyzer, pageClass, params);
-        Component currentPage = getNavigableAppLevelWindow().getPage();
-        if (currentPage instanceof ParamChangeListener) {  
-            ((ParamChangeListener)currentPage).paramChanged(event);
+    protected void notifyParamsChangedListener(Component page, String params) {
+        NavigationEvent event = new NavigationEvent(this, uriAnalyzer, page.getClass(), params);
+        if (page instanceof ParamChangeListener) {  
+            ((ParamChangeListener)page).paramChanged(event);
         } 
     }
     
