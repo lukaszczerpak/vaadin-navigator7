@@ -8,19 +8,21 @@
   	<param-value>false</param-value>
   </context-param>
   <servlet>
-  	<servlet-name>Navigationexample Application</servlet-name>
-  	<servlet-class>
-  	com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+  	<servlet-name>NavigableVaadinServlet</servlet-name>
+  	<servlet-class>org.vaadin.navigator7.NavigableApplicationServlet</servlet-class>
   	<init-param>
-  		<description>
-  		Vaadin application class to start</description>
+  		<description>Vaadin application class to start</description>
   		<param-name>application</param-name>
-  		
   		<param-value>example.ui.application.MyNavigableApplication</param-value>
+  	</init-param>
+  	<init-param>
+  		<description>Navigator7 WebApplication class to start (optionnal)</description>
+  		<param-name>webApplication</param-name>
+  		<param-value>example.ui.application.MyWebApplication</param-value>
   	</init-param>
   </servlet>
   <servlet-mapping>
-  	<servlet-name>Navigationexample Application</servlet-name>
+  	<servlet-name>NavigableVaadinServlet</servlet-name>
   	<url-pattern>/*</url-pattern>
   </servlet-mapping>
   <welcome-file-list>

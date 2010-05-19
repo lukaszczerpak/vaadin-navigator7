@@ -27,20 +27,19 @@ public abstract class NavigableApplication extends Application implements Transa
     
     
 
-    /** Don't override me, because you are not supposed to create any window by yourself (yes, I dare, I close the API with final ;-) */
+    /** Don't override me, because you are not supposed to create any window by yourself */
     @Override
-    public final void init() {
+    public void init() {
         // Defensive programming.
-        if (WebApplication.getInstance().getNavigatorConfig().getPagesClass().size() == 0) {
+        if (WebApplication.getCurrent().getNavigatorConfig().getPagesClass().size() == 0) {
             throw new IllegalStateException("No page in configuration. You should register pages in the constructor of your NavigableApplication sub-class," +
             		" typically by calling NavigableApplication.registerPages() method." +
             		" If you did, then no page has been found. Check your settings as the presence of the @Page annotation on your pages.");
         }
         
         // Register a transaction listener that updates our ThreadLocal with each request
-        if (getContext() != null) {
-            getContext().addTransactionListener(this);
-        }   
+        getContext().addTransactionListener(this);
+
 
         boolean currentWasNull = false;  // During initialization, we trigger code that might needs getCurrent(), but TransactionListener has not been set yet and will not be called.
         if (getCurrent() == null) {

@@ -64,7 +64,7 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
         //                getNavigator().navigateTo(Ticket.class);
         //            }
         //        });
-        Collection<Class <? extends Component>> pageClassColl = WebApplication.getInstance().getNavigatorConfig().getPagesClass();
+        Collection<Class <? extends Component>> pageClassColl = WebApplication.getCurrent().getNavigatorConfig().getPagesClass();
         for (final Class<? extends Component> pageClass : pageClassColl) {
             menuBar.addItem(pageClass.getSimpleName(), new MenuBar.Command() {
                 public void menuSelected(MenuItem selectedItem) {

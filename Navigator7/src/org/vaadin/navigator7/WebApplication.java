@@ -1,6 +1,30 @@
 package org.vaadin.navigator7;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+
+import com.vaadin.Application;
+import com.vaadin.service.ApplicationContext.TransactionListener;
+
 /**
+ * You may extend this class to manually register your pages. If you do that, you must specify the class name as an init parameter of the NavigableApplicationServlet (as MyWebApplication in this example):
+ * <pre><servlet-class>org.vaadin.navigator7.NavigableApplicationServlet</servlet-class>
+    <init-param>
+        <description>Vaadin application class to start</description>
+        <param-name>application</param-name>
+        <param-value>example.ui.application.MyNavigableApplication</param-value>
+    </init-param>
+    <init-param>
+        <description>Navigator7 WebApplication class to start (optionnal)</description>
+        <param-name>webApplication</param-name>
+        <param-value>example.ui.application.MyWebApplication</param-value>
+    </init-param>
+  </servlet>
+ * </pre>
+ * 
  * There should be one instance of this for the whole web application = 1 instance per servlet context.
  * The name is confusing with com.vaadin.Application (which has one instance per HttpSession) because
  * probably com.vaadin.Application should be renamed "UserContext" (for Java web developers, the term "Application" means ServletContext)
@@ -14,28 +38,24 @@ package org.vaadin.navigator7;
  */
 public class WebApplication {
 
-    // class level Singleton to simplify for the moment.
-    // If integrated into Vaadin 7, please bind this to the ServletContext (which you remember the instance here instead of the WebApplication)
-    // when the Vaadin servlet is called for the first time.
-    // In the web.xml Vaadin servlet definition, we should have the descendant of this class that should be instantiated 
-    // (instead of the descendant of com.vaadin.Application as we have now). 
-    protected static WebApplication instance = new WebApplication(); 
-    
-    public static WebApplication getInstance() {
-        return instance;
+    static protected ThreadLocal<ServletContext> currentServletContext = new ThreadLocal<ServletContext>();
+
+    /** Don't hesitate to use this method ;-) */
+    public static WebApplication getCurrent() {
+        return (WebApplication)currentServletContext.get().getAttribute(NavigableApplicationServlet.WEBAPPLICATION_CONTEXT_ATTRIBUTE_NAME);
     }
+    
 
     ///////////////////////////////////////////// Navigable stuff /////////////////////////////////////////////////////
     
     protected NavigatorConfig navigatorConfig = new NavigatorConfig();
     
     /** Don't hesitate to change this value with another descendant of UriAnalyser in your constructor's descendant. */
-    protected ParamUriAnalyzer uriAnalyzer = new ParamUriAnalyzer();  
+    protected ParamUriAnalyzer uriAnalyzer = new ParamUriAnalyzer();
+
+    protected ServletContext servletContext;  
 
     
-    public WebApplication() {
-
-    }
 
     public void registerPages(Class[] pageClasses) {
         navigatorConfig.registerPages(pageClasses);
@@ -57,6 +77,11 @@ public class WebApplication {
 
     public void setUriAnalyzer(ParamUriAnalyzer paramUriAnalyzer) {
         uriAnalyzer = paramUriAnalyzer;
+    }
+
+
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
 }

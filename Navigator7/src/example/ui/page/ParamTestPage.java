@@ -65,7 +65,7 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
         hl.addComponent(col2);
         col2.addComponent(new Label("Invalid examples:"));
 
-        ParamUriAnalyzer analyzer = WebApplication.getInstance().getUriAnalyzer();
+        ParamUriAnalyzer analyzer = WebApplication.getCurrent().getUriAnalyzer();
         
         pr = new PageResource(ParamTestPage.class, analyzer.getFragment("userId", "AAA"));
         // Alternative: pr = new PageResource(ParamTestPage.class, "userId=AAA");
@@ -97,7 +97,7 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
 
     @Override
     public void paramChanged(NavigationEvent event) {
-        ParamUriAnalyzer analyzer = WebApplication.getInstance().getUriAnalyzer();
+        ParamUriAnalyzer analyzer = WebApplication.getCurrent().getUriAnalyzer();
         
         // 1st parameter.
         String nameAndCountry = analyzer.getMandatoryString(event.getParams(), 0);  // Position 0.
