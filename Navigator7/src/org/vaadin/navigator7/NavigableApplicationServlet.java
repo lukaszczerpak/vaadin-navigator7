@@ -16,8 +16,6 @@ import com.vaadin.terminal.gwt.server.ApplicationServlet;
  * */
 public class NavigableApplicationServlet extends ApplicationServlet {
 
-    public static final String WEBAPPLICATION_CONTEXT_ATTRIBUTE_NAME = WebApplication.class.getName();
-    private Class<? extends WebApplication> applicationClass;
 
     /**
      * Called by the servlet container to indicate to a servlet that the servlet
@@ -36,52 +34,17 @@ public class NavigableApplicationServlet extends ApplicationServlet {
             throws javax.servlet.ServletException {
         super.init(servletConfig);
 
-        // Loads the application class using the same class loader
-        // as the servlet itself
-
-        // Gets the application class name
-        final String applicationClassName = servletConfig
-                .getInitParameter("webApplication");
-        if (applicationClassName == null) {  // Using defaults.
-            applicationClass = WebApplication.class;
-        } else {
-            Class<?> clazz;
-            try {
-                clazz = getClassLoader().loadClass(applicationClassName);
-            } catch (final ClassNotFoundException e) {
-                throw new ServletException("Failed to load application class: "
-                        + applicationClassName);
-            }
-            if (! WebApplication.class.isAssignableFrom(clazz)) {
-                throw new ServletException("Class given as parameter is no subclass of WebApplication (and it should): "
-                        + clazz.getName() );
-                
-            }
-            applicationClass = (Class<? extends WebApplication>) clazz;
-            
-            // Ok, we got the class, let's instantiate it.
-            WebApplication webApplication; 
-            try {
-                webApplication = applicationClass.newInstance();
-            } catch (final IllegalAccessException e) {
-                throw new ServletException("Failed to instantiate WebApplication (sub?) class: " + applicationClass.getName(), e);
-            } catch (final InstantiationException e) {
-                throw new ServletException("Failed to instantiate WebApplication (sub?) class: " + applicationClass.getName(), e);
-            }
-            getServletContext().setAttribute(WEBAPPLICATION_CONTEXT_ATTRIBUTE_NAME, webApplication);
-            webApplication.setServletContext(getServletContext());
-        }
+        WebApplication.init(servletConfig, getServletContext(), getClassLoader());
     }
     
     /** I'd prefer to do that in a Filter, but it would be against the Vaadin current architecture 
      * Note that Vaadin TransactionListeners have no access to the ServletContext => we cannot use TransactionListeners. */
     @SuppressWarnings("unchecked")
     @Override
-    protected void service(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        WebApplication.currentServletContext.set(getServletContext());
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        WebApplication.beforeService(request, response, getServletContext());
         super.service(request, response);
-        WebApplication.currentServletContext.remove();
+        WebApplication.afterService(request, response, getServletContext());
     }
     
 }
