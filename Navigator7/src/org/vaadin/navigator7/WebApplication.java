@@ -8,6 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.vaadin.navigator7.interceptor.Interceptor;
+
 /**
  * You may extend this class to manually register your pages. If you do that, you must specify the class name as an init parameter of the NavigableApplicationServlet (as MyWebApplication in this example):
  * <pre><servlet-class>org.vaadin.navigator7.NavigableApplicationServlet</servlet-class>
@@ -69,6 +71,10 @@ public class WebApplication {
         navigatorConfig.registerPages(packageName);
     }
 
+    public void registerInterceptor(Interceptor interceptor) {
+        navigatorConfig.getInterceptorList().add(interceptor);
+    }
+    
     public NavigatorConfig getNavigatorConfig() {
         return navigatorConfig;
     }

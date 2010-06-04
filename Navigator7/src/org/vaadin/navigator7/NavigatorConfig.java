@@ -1,8 +1,12 @@
 package org.vaadin.navigator7;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+
+import org.vaadin.navigator7.interceptor.Interceptor;
 
 import com.vaadin.ui.Component;
 
@@ -21,6 +25,7 @@ public class NavigatorConfig implements Serializable {
 
     private Class<? extends Component> homePageClass;  // Class used for uri with no page name (as, for example just "http://domain.com/").
     
+    protected List<Interceptor> interceptorList = new ArrayList<Interceptor>();
     
     
     /** Scans the pages annotated with @Page in the classpath, for the sub-package of the package given as parameter */
@@ -118,6 +123,13 @@ public class NavigatorConfig implements Serializable {
         }
         return result;
     }
+
+
+    public List<Interceptor> getInterceptorList() {
+        return interceptorList;
+    }
+    
+    
 
 
 

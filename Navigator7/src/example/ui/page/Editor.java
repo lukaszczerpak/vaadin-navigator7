@@ -1,6 +1,6 @@
 package example.ui.page;
 
-import org.vaadin.navigator7.Navigator.NavigationWarner;
+import org.vaadin.navigator7.interceptor.NavigationWarningInterceptor.NavigationWarner;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
