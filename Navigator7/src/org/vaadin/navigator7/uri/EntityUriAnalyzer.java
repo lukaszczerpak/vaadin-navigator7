@@ -1,4 +1,6 @@
-package org.vaadin.navigator7;
+package org.vaadin.navigator7.uri;
+
+
 
 
 
@@ -34,10 +36,29 @@ public abstract class EntityUriAnalyzer<E> extends ParamUriAnalyzer {
      * Note that this EntityUriAnalyzer is not bound to JPA/Hibernate. It could work with JDBC or anything else.
      * ... as long as you have a generic way to return an entity object from it's id and class. 
      * 
-     * @param pk Primary key of the entity. Convert this string in whatever JPA needs (as a Long) in the overrideng method.
+     * @param pk Primary key of the entity. Convert this string in whatever JPA needs (as a Long) in the overriding method. It should be the same as the value returned by your getEntityFragmentValue() method returns. 
      * @return returns null if no data found for that pk.
      */
-    protected abstract E findEntity(Class<? extends E> entityClass, String pk);
+    public abstract E findEntity(Class<? extends E> entityClass, String pk);
+
+
+    /** Override this method to tell how to convert an entity into a String that we can put in a URI.
+     * You probably return the primary key of your entity (the field with @Id if you use JPA/Hibernate)
+     * 
+     * Your implementation could be simple as:
+     * return entity.getId();
+     * 
+     * In this example, your base entity type <E> has a getId() method.
+     * 
+     * @param entity
+     * @return return what you expect to get as pk parameter in your findEntity method.
+     */
+    public abstract String getEntityFragmentValue(E entity);
+
+    /** Don't use this. It's an ugly trick for framework's internal needs */
+    public String getObjectEntityFragmentValue(Object o) {
+        return getEntityFragmentValue((E)o);
+    }
 
     
     public E getEntity(String params, String key, Class<? extends E> entityClass) {

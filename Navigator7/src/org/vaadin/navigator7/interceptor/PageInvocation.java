@@ -21,6 +21,8 @@ public class PageInvocation {
     protected Navigator navigator;
     protected Class<? extends Component> pageClass;
     protected String params;
+    protected Component pageInstance;
+    protected boolean pagePlaced;  // true when the page has been placed (no interceptor interrupted the call chain).
     
     /** true => we'll set the URI (with the page name and params) when invoking the page.
      * when the page change results from an URI change event, we don't want to rechange the URI.
@@ -41,6 +43,13 @@ public class PageInvocation {
     }
 
 
+    public PageInvocation(Navigator navigator2, Component page, String params2,
+            boolean needToChangeUri2) {
+        this(navigator2, page.getClass(), params2, needToChangeUri2);
+        pageInstance = page;
+    }
+
+
     /** Invokes the next step in processing this PageInvocation
      * Call it if you want to go further to navigating to the page (eventually through next interceptors) */
     public void invoke() {
@@ -51,10 +60,29 @@ public class PageInvocation {
             Interceptor nextInterceptor = interceptors.get(currentInterceptorIndex);
             nextInterceptor.intercept(this);
         } else {  // No more interceptor: go to the page.
-            navigator.instantiateAndPlacePage(pageClass, params, needToChangeUri);
+            navigator.placePage(getPageInstance(), params, needToChangeUri);
+            pagePlaced = true;
         }
     }
 
+    /** Returns the page instance after having instantiated it.
+     * Your interceptor should not call this method if not needed.
+     * The latest the page is instantiated, the less it will be instantiated uselessly (if an interceptor decides to stop the navigation chain). 
+     * 
+     */
+    public synchronized Component getPageInstance() {
+        if (pageInstance == null) {
+            try {
+                // instantiate page like: auctionPage = new AuctionPage();
+                pageInstance = (Component) pageClass.newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException("Problem while instantiating page class ["+pageClass+"]. Probably bug. Does your page class have a no-arg constructor?", e);
+            }
+        }
+        return pageInstance;
+    }
+
+    
     public Class<? extends Component> getPageClass() {
         return pageClass;
     }
@@ -84,6 +112,13 @@ public class PageInvocation {
     public void setNeedToChangeUri(boolean needToChangeUri) {
         this.needToChangeUri = needToChangeUri;
     }
+
+
+    public boolean isPagePlaced() {
+        return pagePlaced;
+    }
+
+
 
 
 }

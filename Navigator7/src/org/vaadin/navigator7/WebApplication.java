@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.vaadin.navigator7.interceptor.Interceptor;
+import org.vaadin.navigator7.interceptor.ParamChangeListenerInterceptor;
+import org.vaadin.navigator7.interceptor.ParamInjectInterceptor;
+import org.vaadin.navigator7.uri.ParamUriAnalyzer;
 
 /**
  * You may extend this class to manually register your pages. If you do that, you must specify the class name as an init parameter of the NavigableApplicationServlet (as MyWebApplication in this example):
@@ -51,6 +54,19 @@ public class WebApplication {
     
 
     ///////////////////////////////////////////// Navigable stuff /////////////////////////////////////////////////////
+    
+    public WebApplication() {
+        // Register default interceptors
+        registerInterceptors();
+    }
+    
+    /** Override this method to add your own interceptor to the defaults.
+     * Just don't call super.registerInterceptor if you don't want the default to be registered.
+     */
+    protected void registerInterceptors() {
+        registerInterceptor( new ParamChangeListenerInterceptor() );
+        registerInterceptor( new ParamInjectInterceptor() );
+    }
     
     protected NavigatorConfig navigatorConfig = new NavigatorConfig();
     

@@ -1,4 +1,7 @@
-package org.vaadin.navigator7;
+package org.vaadin.navigator7.uri;
+
+import org.vaadin.navigator7.NavigatorConfig;
+import org.vaadin.navigator7.WebApplication;
 
 import com.vaadin.ui.Component;
 

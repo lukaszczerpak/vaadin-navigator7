@@ -1,8 +1,8 @@
 package example.ui.page;
 
 import org.vaadin.navigator7.Page;
+import org.vaadin.navigator7.ParamChangeListener;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
-import org.vaadin.navigator7.Navigator.ParamChangeListener;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -25,7 +25,7 @@ import example.ui.application.MyNavigableApplication;
  * @author John Rizzo - BlackBeltFactory.com
  */
 @Page
-public class Ticket extends CustomComponent implements ParamChangeListener {
+public class TicketPage extends CustomComponent implements ParamChangeListener  {
 
     VerticalLayout layout = new VerticalLayout();
     TextField tf = new TextField("Ticket number");
@@ -39,7 +39,7 @@ public class Ticket extends CustomComponent implements ParamChangeListener {
 
 
     @SuppressWarnings("serial")
-    public Ticket() {
+    public TicketPage() {
         setCompositionRoot(layout);
         layout.setSpacing(true);
         layout.addComponent(tf);
@@ -54,7 +54,7 @@ public class Ticket extends CustomComponent implements ParamChangeListener {
                 MyNavigableApplication
                    .getCurrentNavigableAppLevelWindow()
                    .getNavigator()
-                   .navigateTo(Ticket.class, tf.toString());
+                   .navigateTo(TicketPage.class, tf.toString());
             }
         });
 
@@ -100,16 +100,19 @@ public class Ticket extends CustomComponent implements ParamChangeListener {
      * NOT called because of an updateUri button click (important ;-).
      */
     @Override
-    public void paramChanged(NavigationEvent event) {
-        lastParamsDetectedLabel.setValue("Last parameters detected: " + event.getParams());
-        if (event.getParams() == null) {
+    public void paramChanged(NavigationEvent navigationEvent) {
+        lastParamsDetectedLabel.setValue("Last parameters detected: " + navigationEvent.getParams());
+        if (navigationEvent.getParams() == null) {
             tf.setValue("");
             details.setVisible(false);
         } else {
-            tf.setValue(event.getParams());
+            tf.setValue(navigationEvent.getParams());
             details.setVisible(true);
-            details.setCaption("Ticket #" + event.getParams());
+            details.setCaption("Ticket #" + navigationEvent.getParams());
         }      
     }
+
+
+
 
 }

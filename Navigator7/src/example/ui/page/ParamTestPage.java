@@ -1,30 +1,33 @@
 package example.ui.page;
 
-import org.vaadin.navigator7.NavigableApplication;
 import org.vaadin.navigator7.PageResource;
-import org.vaadin.navigator7.ParamUriAnalyzer;
+import org.vaadin.navigator7.ParamChangeListener;
 import org.vaadin.navigator7.WebApplication;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
-import org.vaadin.navigator7.Navigator.ParamChangeListener;
+import org.vaadin.navigator7.uri.ExtraValidator;
+import org.vaadin.navigator7.uri.Param;
+import org.vaadin.navigator7.uri.ParamPageResource;
+import org.vaadin.navigator7.uri.ParamUriAnalyzer;
 
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-
-import example.ui.application.MyNavigableApplication;
 
 
-/** Demo of automatic "Page" postfix removal in page name.
- *          usage of UriAnalyzer to ease parameters processing.
+/** Demo of fields injection and validation, with ExtraValidator.
  * 
  * @author John Rizzo - BlackBeltFactory.com
  */
 // Page name will be "ParamTest". If you really want it to be "ParamTestPage", don't rename you class ParamTestPagePage ;-). Use the @Page(uriName="ParamTest") annotation instead.
-public class ParamTestPage extends VerticalLayout implements ParamChangeListener {
+public class ParamTestPage extends VerticalLayout implements ParamChangeListener, ExtraValidator {
 
+    @Param(required=true, pos=0)       String nameAndCountry;  // 1st parameter.
+    @Param(required=true, name="ssn")  String ssn;
+    @Param(name="userId")              Long userId;  // You could use "long" primitive type instead if the parameter was required.
+    
+    
     Label userIdLabel = new Label();
     Label nameCountryLabel = new Label();
     Label ssnLabel = new Label();
@@ -50,7 +53,12 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
         hl.addComponent(col1);
         col1.addComponent(new Label("Valid examples:"));
 
-        pr = new PageResource(ParamTestPage.class, "John-Rizzo-Belgium/userId=123/ssn=xxxxxx");
+//        pr = new PageResource(ParamTestPage.class, "John-Rizzo-Belgium/userId=123/ssn=xxxxxx");  // Weak link construction
+        pr = (new ParamPageResource(ParamTestPage.class, "John-Rizzo-Belgium"))   // Strong (typed) link construction
+            .addParam("ssn", "xxxxxx")
+            .addParam("userId", 123L);
+
+        
         col1.addComponent( new Link(pr.getURL(), pr) );
         col1.addComponent(new Label("&nbsp;<br/>", Label.CONTENT_XHTML));
         
@@ -67,13 +75,14 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
 
         ParamUriAnalyzer analyzer = WebApplication.getCurrent().getUriAnalyzer();
         
-        pr = new PageResource(ParamTestPage.class, analyzer.getFragment("userId", "AAA"));
-        // Alternative: pr = new PageResource(ParamTestPage.class, "userId=AAA");
+        pr = (new ParamPageResource(ParamTestPage.class, "userId=AAA")); 
         col2.addComponent(new Link(pr.getURL() , pr));
         col2.addComponent(new Label("&nbsp; 1st param contains a = sign while it's not supposed to;" +
         		" userid is not numeric; ssn is missing<br/>&nbsp;", Label.CONTENT_XHTML));
 
-        pr = new PageResource(ParamTestPage.class, "userId=123/ssn=zzzzzz");
+        pr = (new ParamPageResource(ParamTestPage.class))   // Strong (typed) link construction
+            .addParam("ssn", "xxxxxx")
+            .addParam("userId", 123L);
         col2.addComponent(new Link(pr.getURL() , pr));
         col2.addComponent(l=new Label("&nbsp; idem about the 1st missing non named parameter.<br/>" +
         		"Unfortunately, not detected by the UriAnalyzer that thinks 'userId=123'<br./>" +
@@ -83,7 +92,14 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
                 "<br/>&nbsp;", Label.CONTENT_XHTML));
         l.setHeight(null);
 
-        pr = new PageResource(ParamTestPage.class, "John-Rizzo-Belgium/ssn=xxxxxx/userId=1234567890123456789");
+        // Weak url construction:
+//        pr = new PageResource(ParamTestPage.class, "John-Rizzo-Belgium/ssn=xxxxxx/userId=1234567890123456789");
+        
+        // Strong (typed with runtime verification) url construction => better:
+        pr = (new ParamPageResource(ParamTestPage.class, "John-Rizzo-Belgium"))
+            .addParam("ssn", "xxxxxx")
+            .addParam("userId", 1234567890123456789L);
+        
         col2.addComponent(new Link(pr.getURL() , pr));
         col2.addComponent(new Label("&nbsp; In this page (outside the UriAnalyzer), we check that the userId should be smaller than 1000<br/>&nbsp;", Label.CONTENT_XHTML));
       
@@ -95,38 +111,73 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
         panel.addComponent(ssnLabel);
     }
 
-    @Override
-    public void paramChanged(NavigationEvent event) {
-        ParamUriAnalyzer analyzer = WebApplication.getCurrent().getUriAnalyzer();
-        
-        // 1st parameter.
-        String nameAndCountry = analyzer.getMandatoryString(event.getParams(), 0);  // Position 0.
-        if (nameAndCountry == null) { return; }  // analyzer already displayed a message to the end-user.
-        
-        // userId.
-        Long userId = analyzer.getLong(event.getParams(), "userId");
-        // Additionnal business logic check:
-        if (userId != null && userId.longValue() >= 1000 ) {
-            Window currentWindow = NavigableApplication.getCurrentNavigableAppLevelWindow();
-            currentWindow.showNotification("URL problem: userId cannot be > 1000 in our business logic<br/>",
-                    event.getParams(), Window.Notification.TYPE_HUMANIZED_MESSAGE);
-        }
-        
-        // ssn
-        String ssn = analyzer.getMandatoryString(event.getParams(), "ssn");
-        if (ssn == null) { return; }  // analyzer already displayed a message to the end-user.
-        
-        
-        ///// From this point, all parameters are valid and we can continue displaying corresponding data.
-        
-        nameCountryLabel.setValue("param 0 (name & country) = " + nameAndCountry);
+//////////////////////  Old code, before v7.3 and the introduction of the @Param injection mechanism.    
+//    @Override
+//    public void paramChanged(NavigationEvent event) {
+//        ParamUriAnalyzer analyzer = WebApplication.getCurrent().getUriAnalyzer();
+//        
+//        // 1st parameter.
+//        String nameAndCountry = analyzer.getMandatoryString(event.getParams(), 0);  // Position 0.
+//        if (nameAndCountry == null) { return; }  // analyzer already displayed a message to the end-user.
+//        
+//        // userId.
+//        Long userId = analyzer.getLong(event.getParams(), "userId");
+//        // Additionnal business logic check:
+//        if (userId != null && userId.longValue() >= 1000 ) {
+//            Window currentWindow = NavigableApplication.getCurrentNavigableAppLevelWindow();
+//            currentWindow.showNotification("URL problem: userId cannot be > 1000 in our business logic<br/>",
+//                    event.getParams(), Window.Notification.TYPE_HUMANIZED_MESSAGE);
+//        }
+//        
+//        // ssn
+//        String ssn = analyzer.getMandatoryString(event.getParams(), "ssn");
+//        if (ssn == null) { return; }  // analyzer already displayed a message to the end-user.
+//        
+//        
+//        ///// From this point, all parameters are valid and we can continue displaying corresponding data.
+//        
+//        nameCountryLabel.setValue("param 0 (name & country) = " + nameAndCountry);
+//
+//        if (userId != null) {
+//            userIdLabel.setValue("userId = " + userId);
+//        } else {
+//            userIdLabel.setValue("There is no userId, but it's ok, it's an optionnal parameter.");
+//        }
+//        
+//        ssnLabel.setValue("ssn = " + ssn);
+//    }
 
-        if (userId != null) {
-            userIdLabel.setValue("userId = " + userId);
+
+    @Override
+    public void paramChanged(NavigationEvent navigationEvent) {
+        ///// From this point, all URI parameters are valid,
+        // and they are also injected in @Param fields.
+        // We can continue displaying corresponding data.
+        
+        nameCountryLabel.setValue("param 0 (name & country) = " + this.nameAndCountry);
+
+        if (this.userId != null) {
+            userIdLabel.setValue("userId = " + this.userId);
         } else {
             userIdLabel.setValue("There is no userId, but it's ok, it's an optionnal parameter.");
         }
         
-        ssnLabel.setValue("ssn = " + ssn);
+        ssnLabel.setValue("ssn = " + this.ssn);
     }
+
+    
+    
+    /** Demo on how to plug your code performing extra validation logic on the injected fields
+     */
+    @Override
+    public String extraValidate(String fragment) {
+        if (userId != null && userId.longValue() >= 1000 ) {  // If there is a userId it must be < 1000
+            return "URL problem: userId cannot be > 1000 in our business logic";  // Shown to the user.
+        }
+        return null;  // Ok, no validation problem.
+    }
+
+
+
+
 }

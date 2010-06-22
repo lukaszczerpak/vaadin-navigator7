@@ -1,10 +1,8 @@
 package example.ui.application;
 
-import java.util.Collection;
-
-import org.vaadin.navigator7.WebApplication;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
-import org.vaadin.navigator7.Navigator.NavigationListener;
+import org.vaadin.navigator7.interceptor.PageChangeListenersInterceptor.PageChangeListener;
+import org.vaadin.navigator7.uri.ParamPageResource;
 import org.vaadin.navigator7.window.HeaderFooterFixedAppLevelWindow;
 
 import com.vaadin.ui.Alignment;
@@ -14,6 +12,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.MenuBar.MenuItem;
+
+import example.ui.page.DashboardPage;
+import example.ui.page.EditorPage;
+import example.ui.page.ParamTestPage;
+import example.ui.page.ProductAPage;
+import example.ui.page.ProductBPage;
+import example.ui.page.TicketPage;
 
 /** Defines the template (header/footer/...) of our application level windows
  * 
@@ -43,36 +48,69 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
         navLabel.setWidth(null);
         header.addComponent(navLabel);
         header.setComponentAlignment(navLabel, Alignment.TOP_RIGHT);
-        getNavigator().addNavigationListener( new NavigationListener() {
+        
+        ((MyWebApplication)MyWebApplication.getCurrent())
+            .getPageChangeListenerInterceptor()
+            .addPageChangeListener( new PageChangeListener() {
             @Override  public void pageChanged(NavigationEvent event) {
-                navLabel.setValue("NavigationListener: pageClass = "+ event.getPageClass() +
+                navLabel.setValue("PageChangeListener: pageClass = "+ event.getPageClass() +
                                                   " -- params = " + event.getParams());
             }
         });
 
         ///// Menu
+        // Design note: this example is bad: 
+        // the menu bar should be real <a href="..."> links to each page.
+        // Here, on the contrary, when user click, we go back to the server and execute the MenuBar.Command inner class.
+        // It internally forwards to the page.
+        // But the link does not appears in the browser.
+        // Vaadin should propose a MenuBar that also accepts Links as items (instead of Command classes).
+        
+        
         MenuBar menuBar = new MenuBar();
         menuBar.setWidth("100%");
         header.addComponent(menuBar);
         header.setComponentAlignment(menuBar, Alignment.BOTTOM_LEFT);
         
-        // Create one menu item with each page of the application
-        // this is little bit artificial in the example. In a business application, you manually select (name) the pages to put in the menu, instead of having a loop.
-        // something like: 
-        //        menuBar.addItem("Manage Your Tickets", new MenuBar.Command() {
-        //            public void menuSelected(MenuItem selectedItem) {
-        //                getNavigator().navigateTo(Ticket.class);
-        //            }
-        //        });
-        Collection<Class <? extends Component>> pageClassColl = WebApplication.getCurrent().getNavigatorConfig().getPagesClass();
-        for (final Class<? extends Component> pageClass : pageClassColl) {
-            menuBar.addItem(pageClass.getSimpleName(), new MenuBar.Command() {
-                public void menuSelected(MenuItem selectedItem) {
-                    getNavigator().navigateTo(pageClass);
-                }
-            });
-        }
 
+        menuBar.addItem("DashBoard", new MenuBar.Command() {
+            public void menuSelected(MenuItem selectedItem) {
+                getNavigator().navigateTo(DashboardPage.class);
+            }
+        });
+        menuBar.addItem("Manage Your Tickets", new MenuBar.Command() {
+            public void menuSelected(MenuItem selectedItem) {
+                getNavigator().navigateTo(TicketPage.class);
+            }
+        });
+        menuBar.addItem("Editor", new MenuBar.Command() {
+            public void menuSelected(MenuItem selectedItem) {
+                getNavigator().navigateTo(EditorPage.class);
+            }
+        });
+        menuBar.addItem("Product A 34", new MenuBar.Command() {
+            public void menuSelected(MenuItem selectedItem) {
+                // If I had a product in a variable p, I'd have written:
+//                getNavigator().navigateTo(new ParamPageResource(ProductAPage.class, p)); 
+                getNavigator().navigateTo(ProductAPage.class, "34"); 
+            }
+        });
+        menuBar.addItem("Product B 34", new MenuBar.Command() {
+            public void menuSelected(MenuItem selectedItem) {
+                // If I had a product in a variable p, I'd have written:
+                // getNavigator().navigateTo(Product.class, p.getId().toString());
+                getNavigator().navigateTo(ProductBPage.class, "34"); 
+            }
+        });
+        menuBar.addItem("ParamTestPage", new MenuBar.Command() {
+            public void menuSelected(MenuItem selectedItem) {
+                getNavigator().navigateTo(
+                    new ParamPageResource(ParamTestPage.class, "Albator-Forever")
+                        .addParam("ssn", "xxx.xxx.xxx"));
+            }
+        });
+
+        
         return header;
     }
 

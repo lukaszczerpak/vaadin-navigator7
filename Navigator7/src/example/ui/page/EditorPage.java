@@ -1,5 +1,6 @@
 package example.ui.page;
 
+import org.vaadin.navigator7.Page;
 import org.vaadin.navigator7.interceptor.NavigationWarningInterceptor.NavigationWarner;
 
 import com.vaadin.data.Property;
@@ -17,7 +18,8 @@ import com.vaadin.ui.Button.ClickEvent;
  * @author John Rizzo - BlackBeltFactory.com
  */
 @SuppressWarnings("serial")
-public class Editor extends CustomComponent implements NavigationWarner {
+@Page(uriName="E-D-I-T-O-R")  // Useless but funny. Will appear in the URI.
+public class EditorPage extends CustomComponent implements NavigationWarner {
 
     TextField tf = new TextField();
     VerticalLayout lo = new VerticalLayout();
@@ -28,7 +30,7 @@ public class Editor extends CustomComponent implements NavigationWarner {
         return saved ? null : "The text you are editing has not been saved.";
     }
 
-    public Editor() {
+    public EditorPage() {
 //        setSizeFull();   // Non sense in our example of FixedPageTemplate.
         lo.addComponent( new Label("Type some text and try to go to another page (menu or URL typing) before saving.") );
         

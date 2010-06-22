@@ -118,8 +118,10 @@ public class NavigatorConfig implements Serializable {
         // Defensive coding
         if (result == null) {  // Not found.
             throw new IllegalArgumentException("Bug: a given page class would have not a name? " +
-            		"The caller probably does not expect that. You probably did not include that page in your configuration. " +
-            		"Page class = "+ pageClass);
+            		"The caller probably does not expect that." +
+            		" You probably did not include that page in your configuration. " +
+            		" You can include it by calling the registerPage() method in your descendant of WebApplication." +
+            		" Page class = "+ pageClass);
         }
         return result;
     }

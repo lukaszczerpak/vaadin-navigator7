@@ -20,11 +20,11 @@ import com.vaadin.ui.VerticalLayout;
  */
 @Page(uriName="dash")
 @SuppressWarnings("serial")
-public class Dashboard extends CustomComponent {
+public class DashboardPage extends CustomComponent {
 
     GridLayout gl = new GridLayout(3, 3);
 
-    public Dashboard() {
+    public DashboardPage() {
 //        setSizeFull();    Non sense in a fixed web design (FixedPageTemplagte).
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSpacing(true);
@@ -38,7 +38,7 @@ public class Dashboard extends CustomComponent {
 
         VerticalLayout vLayout = new VerticalLayout();
         vLayout.addComponent(new Label("This home page is displayed (with a notification if you type a wrong URL. Try this:"));
-        PageResource pageResource = new PageResource(Ticket.class, "ABC");
+        PageResource pageResource = new PageResource(TicketPage.class, "ABC");
         vLayout.addComponent(new Link(pageResource.getURL(), pageResource));
         String wrongUrl = "#NonExistingPage";
         vLayout.addComponent(new Link(wrongUrl, new ExternalResource(wrongUrl)));

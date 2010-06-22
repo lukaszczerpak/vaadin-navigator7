@@ -1,7 +1,9 @@
-package org.vaadin.navigator7;
+package org.vaadin.navigator7.uri;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.vaadin.navigator7.NavigableApplication;
 
 import com.vaadin.ui.Window;
 
@@ -196,6 +198,29 @@ public class ParamUriAnalyzer extends UriAnalyzer {
              + (paramName3 != null ? paramsSeparator + paramName3 + valueSeparator + paramValue3 : "");
     }   
     
+    /** Easy method to add a named parameter to an existing fragment
+     */
+    public String addFragment(String fragment, String paramName, String paramValue) {
+        String start;
+        if (fragment != null && !"".equals(fragment)) {  // There are previous values already.
+            start = fragment + paramsSeparator;   // We separate from the previous value with a "/"
+        } else {
+            start = "";
+        }
+        return start + paramName  + valueSeparator + paramValue;  // "..../name=value"
+    }    
+
+    /** Easy method to add a positional parameter to an existing fragment
+     */
+    public String addFragment(String fragment, String paramValue) {
+        String start;
+        if (fragment != null && !"".equals(fragment)) {  // There are previous values already.
+            start = fragment + paramsSeparator;   // We separate from the previous value with a "/"
+        } else {
+            start = "";
+        }
+        return start + paramValue;  // "..../value"
+    }    
 
 
     
@@ -235,7 +260,7 @@ public class ParamUriAnalyzer extends UriAnalyzer {
      * 
      * @param problemDescription is not i18n, sorry. This framework should be enhanced if someone needs to support that.
      */
-    protected void reportProblemWithFragment(String problemDescription, String fragment) {
+    public void reportProblemWithFragment(String problemDescription, String fragment) {
         Window currentWindow = NavigableApplication.getCurrentNavigableAppLevelWindow();
         currentWindow.showNotification(problemDescription + "<br/>", fragment, Window.Notification.TYPE_HUMANIZED_MESSAGE);
     }
