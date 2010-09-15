@@ -4,6 +4,7 @@ import org.vaadin.navigator7.PageLink;
 import org.vaadin.navigator7.ParamChangeListener;
 import org.vaadin.navigator7.WebApplication;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
+import org.vaadin.navigator7.uri.Param;
 
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -11,7 +12,7 @@ import com.vaadin.ui.VerticalLayout;
 import example.model.Product;
 import example.ui.application.MyUriAnalyzer;
 
-/** Demo of the EntityUriAnalayzer (MyUriAnalyzer) but with no @Param annotation. We use the ParamChangeListener instead */
+/** Demo of the EntityUriAnalayzer (MyUriAnalyzer) but with no @Param annotation. */
 public class ProductBPage extends VerticalLayout implements ParamChangeListener {
 
     
@@ -19,11 +20,22 @@ public class ProductBPage extends VerticalLayout implements ParamChangeListener 
     public void paramChanged(NavigationEvent navigationEvent) {
         // Analyzses the parameters and retreives the product.
         MyUriAnalyzer uriAnalyzer = (MyUriAnalyzer)WebApplication.getCurrent().getUriAnalyzer();
+
         Product p = (Product) uriAnalyzer.getMandatoryEntity(navigationEvent.getParams(), 0, Product.class);
         if (p == null) { 
             return;  // User has already been visually notified of the missing parameter.
         }
 
+        // Optional String
+        String value1 = (String) uriAnalyzer.getString(navigationEvent.getParams(), 1);
+
+        // Optional String
+        String value2 = (String) uriAnalyzer.getString(navigationEvent.getParams(), 2);
+
+        // Optional String
+        String namedValue = (String) uriAnalyzer.getString(navigationEvent.getParams(), "namedValue");
+
+     
         
         removeAllComponents();
         

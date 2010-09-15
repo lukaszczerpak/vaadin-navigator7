@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.vaadin.navigator7.interceptor.Interceptor;
 
@@ -27,6 +29,8 @@ public class NavigatorConfig implements Serializable {
     
     protected List<Interceptor> interceptorList = new ArrayList<Interceptor>();
     
+    // Pages for which Google bots should navigate through. Adds a ! in URIs.
+    private Set<Class<? extends Component>> crawlablePages = new HashSet<Class<? extends Component>>();
     
     /** Scans the pages annotated with @Page in the classpath, for the sub-package of the package given as parameter */
     public void registerPages(String packageName) {
@@ -49,27 +53,46 @@ public class NavigatorConfig implements Serializable {
             }
             Class<? extends Component> pageClass = (Class<? extends Component>)clazz;
 
-            // Discover the name through the @Page annotation.
-            String pageName;
-            Page pageAnnotation = pageClass.getAnnotation(Page.class);
-            if (pageAnnotation == null) {  // Class not annotated => default name.
-                pageName = computePageNameFromClassName(pageClass.getSimpleName());
-            } else { // Class annotated
-                if (pageAnnotation.uriName() != null && ! "".equals(pageAnnotation.uriName().trim())) {
-                    pageName = pageAnnotation.uriName();
-                } else {  // No name given in the annotation => use default.
-                    pageName = computePageNameFromClassName(pageClass.getSimpleName());
-                }
-            }
             
-            addPageClass(pageClass, pageName);
+            addPageClass(pageClass);
         }
 
         setHomePageClass(pageClasses[0]);  // By default. setHomePage can explicitely be called to specify another class.
     }
 
+    public 
+    static  // Static because (hack): http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481 
+    String computePageName(Class<? extends Component> pageClass) { 
+        // Discover the name through the @Page annotation.
+        String pageName;
+        Page pageAnnotation = pageClass.getAnnotation(Page.class);
+
+        if (pageAnnotation == null) {  // Class not annotated => default name.
+            pageName = computePageNameFromClassName(pageClass.getSimpleName());
+
+        } else { // Class annotated
+            if (pageAnnotation.uriName() != null && ! "".equals(pageAnnotation.uriName().trim())) {
+                pageName = pageAnnotation.uriName();
+            } else {  // No name given in the annotation => use default.
+                pageName = computePageNameFromClassName(pageClass.getSimpleName());
+            }
+        }
+        return pageName;
+    }
+
+    public static boolean computeIsCrawlable(Class<? extends Component> pageClass) {
+        Page pageAnnotation = pageClass.getAnnotation(Page.class);
+        return (pageAnnotation != null && pageAnnotation.crawlable());
+    }
     
-    public void addPageClass(Class<? extends Component> pageClass, String pageName) {
+    public void addPageClass(Class<? extends Component> pageClass) {
+        if (computeIsCrawlable(pageClass)) {
+            crawlablePages.add(pageClass);
+        }
+
+        String pageName = computePageName(pageClass);
+        
+        // Add the page in maps.
         String lowerCasePageName = pageName.toLowerCase();
         if (uriToClass.containsKey(lowerCasePageName)) {
             throw new IllegalArgumentException("Adding a page with a name that has already been added in the configuration: ["+lowerCasePageName+"]");
@@ -97,7 +120,9 @@ public class NavigatorConfig implements Serializable {
      * If the given class name is "MyGreatPage", then the result will be "MyGreat".
      * If the given class name is "Hello", then the result will be "Hello".
      */
-    public String computePageNameFromClassName(String simpleName) {
+    public
+    static  // Static because (hack): http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481 
+    String computePageNameFromClassName(String simpleName) {
         if (simpleName.endsWith("Page")) {
             simpleName = simpleName.substring(0, simpleName.length()-4); // Remove the word "Page".
         }
@@ -129,6 +154,10 @@ public class NavigatorConfig implements Serializable {
 
     public List<Interceptor> getInterceptorList() {
         return interceptorList;
+    }
+
+    public boolean isPageCrawlable(Class<? extends Component> pageClass) {
+        return crawlablePages.contains(pageClass);
     }
     
     

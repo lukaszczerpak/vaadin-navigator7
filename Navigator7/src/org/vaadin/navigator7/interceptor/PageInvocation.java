@@ -65,6 +65,17 @@ public class PageInvocation {
         }
     }
 
+    
+    /** In case an exception is fired by the page when it's instantiated or when parameters are initialized,
+     * we display the stack trace.
+     * This method is typically called by interceptors.
+     * TODO: We should provide a mechanism (override a method in another class) to enable developers to do anything else (as displaying the stack trace only if logged user is admin, for example). A good candiate would be NavigableAppLevelWindow
+     */
+    public void placeExceptionPage(Exception exception) {
+        navigator.placePage(new ExceptionPage(exception, pageClass, params), params, needToChangeUri);
+    }
+    
+    
     /** Returns the page instance after having instantiated it.
      * Your interceptor should not call this method if not needed.
      * The latest the page is instantiated, the less it will be instantiated uselessly (if an interceptor decides to stop the navigation chain). 
@@ -76,7 +87,9 @@ public class PageInvocation {
                 // instantiate page like: auctionPage = new AuctionPage();
                 pageInstance = (Component) pageClass.newInstance();
             } catch (Exception e) {
-                throw new RuntimeException("Problem while instantiating page class ["+pageClass+"]. Probably bug. Does your page class have a no-arg constructor?", e);
+                RuntimeException e2 = new RuntimeException("Problem while instantiating page class ["+pageClass+"]. Probably bug. Does your page class have a no-arg constructor?", e);
+                placeExceptionPage(e2);
+                throw e2;
             }
         }
         return pageInstance;

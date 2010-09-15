@@ -18,6 +18,7 @@ import example.ui.page.EditorPage;
 import example.ui.page.ParamTestPage;
 import example.ui.page.ProductAPage;
 import example.ui.page.ProductBPage;
+import example.ui.page.SeoPage;
 import example.ui.page.TicketPage;
 
 /** Defines the template (header/footer/...) of our application level windows
@@ -107,6 +108,11 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
                 getNavigator().navigateTo(
                     new ParamPageResource(ParamTestPage.class, "Albator-Forever")
                         .addParam("ssn", "xxx.xxx.xxx"));
+            }
+        });
+        menuBar.addItem("SeoPage", new MenuBar.Command() {
+            public void menuSelected(MenuItem selectedItem) {
+                getNavigator().navigateTo(SeoPage.class);
             }
         });
 

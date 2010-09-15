@@ -25,7 +25,13 @@ public class ParamChangeListenerInterceptor implements Interceptor {
             NavigationEvent event = new NavigationEvent(pageInvocation.getNavigator(),
                     WebApplication.getCurrent().getUriAnalyzer(),
                     page.getClass(), pageInvocation.getParams());
-            ((ParamChangeListener)page).paramChanged(event);
+            try {
+                ((ParamChangeListener)page).paramChanged(event);
+            } catch (RuntimeException e) {
+                pageInvocation.placeExceptionPage(e);
+                throw e;
+            }
+
         }
     }
 }

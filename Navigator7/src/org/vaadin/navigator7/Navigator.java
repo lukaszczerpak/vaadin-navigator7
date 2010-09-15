@@ -46,7 +46,8 @@ public class Navigator
     /** Rebuild (reinstantiates) the current page, and calls the PageParamListener (the page) with the current parameters (to display/select the right data). */
     public void reloadCurrentPage(){
         // We need the params (we already know the screen name and class).
-        String[] fragment = WebApplication.getCurrent().getUriAnalyzer().extractPageNameAndParamsFromFragment(uriFragmentUtility.getFragment());
+        WebApplication webApp = getNavigableAppLevelWindow().getNavigableApplication().getWebApplication();  // Sometimes we are called via a file v6 upload listener (and in that case WebApplication.getCurrent() is null) 
+        String[] fragment = webApp.getUriAnalyzer().extractPageNameAndParamsFromFragment(uriFragmentUtility.getFragment());
         String params;
         if (fragment != null && fragment.length > 1)  {
             params = fragment[1];
@@ -54,7 +55,7 @@ public class Navigator
             params = null;
         }
         
-        invokeInterceptors(((NavigableAppLevelWindow)getWindow()).getPage().getClass(), params, false);
+        invokeInterceptors(getNavigableAppLevelWindow().getPage().getClass(), params, false);
 //        checkParamsThenInstantiatePage(((NavigableAppLevelWindow)getWindow()).getPage().getClass(), params, false);
     }
 
@@ -178,7 +179,7 @@ public class Navigator
 
         // Get the page class from the page name.
         Class<? extends Component> pageClass;
-        if (pageName == null) {
+        if (pageName == null || "".equals(pageName.trim())) {
             pageClass = WebApplication.getCurrent().getNavigatorConfig().getHomePageClass();
         } else {
             // Do we know that name (that URI) ?

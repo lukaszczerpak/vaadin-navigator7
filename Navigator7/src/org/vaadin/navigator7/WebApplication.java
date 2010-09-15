@@ -47,11 +47,31 @@ public class WebApplication {
     /** @See http://vaadin.com/forum/-/message_boards/message/155212?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=2#_19_message_166110   */
     static protected ThreadLocal<ServletContext> currentServletContext = new ThreadLocal<ServletContext>();
 
-    /** Don't hesitate to use this method ;-) */
+    /** Don't hesitate to use this method ;-)
+     * Returns null if we are not in a web thread (or a badly initialized web app) */
     public static WebApplication getCurrent() {
-        return (WebApplication)currentServletContext.get().getAttribute(WEBAPPLICATION_CONTEXT_ATTRIBUTE_NAME);
+        ServletContext servletContext = currentServletContext.get();
+        if (servletContext == null) {  // We are in a batch thread, probably: http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481
+            return null;
+        } else { // web thread.
+            return (WebApplication)servletContext.getAttribute(WEBAPPLICATION_CONTEXT_ATTRIBUTE_NAME);
+        }
     }
     
+    
+    /**
+     * Copy of com.vaadin.Application.getVersion() method. In fact it makes more sense to have such a version definition here and getVersion method should be moved here in WebApplication.
+     * 
+     * Override this method to return correct version number of your
+     * Application. Version information is delivered for example to Testing
+     * Tools test results. By default this returns a string "NONVERSIONED".
+     * 
+     * @return version string
+     */
+    public String getVersion() {
+        return "NONVERSIONED";
+    }
+
 
     ///////////////////////////////////////////// Navigable stuff /////////////////////////////////////////////////////
     

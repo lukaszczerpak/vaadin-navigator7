@@ -1,5 +1,7 @@
 package org.vaadin.navigator7;
 
+import org.vaadin.navigator7.uri.UriAnalyzer;
+
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.Component;
 
@@ -24,7 +26,11 @@ public class PageResource extends ExternalResource{
     }
 
     public PageResource(Class<? extends Component> pageClass, String params) {
-        super(WebApplication.getCurrent().getUriAnalyzer().buildFragmentFromPageAndParameters(pageClass, params, true) );
+        super(
+            /* WebApplication.getCurrent().getUriAnalyzer(). */ // No, because of batch jobs:  http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481  
+            UriAnalyzer.
+                buildFragmentFromPageAndParameters(pageClass, params, true)
+        );
         // For example  "#Auction/123456"
         this.pageClass = pageClass;
         this.params = params;

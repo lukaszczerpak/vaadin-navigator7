@@ -1,5 +1,6 @@
 package example.ui.page;
 
+import org.vaadin.navigator7.Page;
 import org.vaadin.navigator7.ParamChangeListener;
 import org.vaadin.navigator7.ParamPageLink;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
@@ -11,6 +12,7 @@ import com.vaadin.ui.VerticalLayout;
 import example.model.Product;
 
 /** Demo of the EntityUriAnalayzer (MyUriAnalyzer) with @Param (and the ParamInjectInterceptor). */
+@Page(crawlable=true)
 public class ProductAPage extends VerticalLayout implements ParamChangeListener {
 
     @Param(pos=0, required=true) Product p;          // "34"
@@ -39,6 +41,7 @@ public class ProductAPage extends VerticalLayout implements ParamChangeListener 
 
         // a lot of UI code (biggest part of the page) should follow here.
         // .....
+        
     }
     
 }

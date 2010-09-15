@@ -9,7 +9,7 @@ import example.ui.page.EditorPage;
 import example.ui.page.ParamTestPage;
 import example.ui.page.ProductAPage;
 import example.ui.page.ProductBPage;
-import example.ui.page.ProductAPage;
+import example.ui.page.SeoPage;
 import example.ui.page.TicketPage;
 
 /** 
@@ -29,7 +29,8 @@ public class MyWebApplication extends WebApplication {
                 TicketPage.class,
                 ParamTestPage.class,
                 ProductAPage.class,
-                ProductBPage.class
+                ProductBPage.class,
+                SeoPage.class,
         });
         setUriAnalyzer( new MyUriAnalyzer() );
     }

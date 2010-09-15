@@ -74,7 +74,7 @@ public class NavigationWarningInterceptor implements Interceptor {
          * 
          * If the current page is in state where navigating away from it could
          * lead to data loss, this method should return a message that will be
-         * shown to user before he confirms that he will leave the screen. If
+         * shown to user before he confirms that he will leave the page. If
          * there is no need to ask questions from user, this should return null.
          * 
          * @return Message to be shown or null if the page may be changed without warning the end-user.
@@ -122,7 +122,7 @@ public class NavigationWarningInterceptor implements Interceptor {
                 final Window main = NavigableApplication.getCurrentNavigableAppLevelWindow();
                 main.addWindow(wDialog);
                 lo.addComponent(new Label(warningMessage));
-                lo.addComponent(new Label("If you do not want to navigate away from the current screen, press Cancel."));
+                lo.addComponent(new Label("If you do not want to navigate away from the current page, press Cancel."));
 
                 Button cancel = new Button("Cancel", new Button.ClickListener() {
                     public void buttonClick(ClickEvent event) {

@@ -4,6 +4,7 @@ package org.vaadin.navigator7.uri;
 
 
 
+
 /** convenient methods to get (i.e. JPA) Entities from values (primary keys) in the URIs.
  * Pages can directly turn URI parameters into entities loaded from your DB. 
  * 
@@ -55,6 +56,7 @@ public abstract class EntityUriAnalyzer<E> extends ParamUriAnalyzer {
      */
     public abstract String getEntityFragmentValue(E entity);
 
+    
     /** Don't use this. It's an ugly trick for framework's internal needs */
     public String getObjectEntityFragmentValue(Object o) {
         return getEntityFragmentValue((E)o);
@@ -111,6 +113,53 @@ public abstract class EntityUriAnalyzer<E> extends ParamUriAnalyzer {
      */
     protected String getEnityParamName(Class<? extends E> entityClass) {
         return entityClass.getSimpleName();
+    }
+
+    /** Override me to something like:
+     *     @Override
+    public Object convertSpecialType(Class<?> type, String valueStr, String fragment) {
+        Object result = super.convertSpecialType(type, valueStr, fragment);
+        if (result != null) {
+            return result;
+        }
+        
+        // Convertion of Language enum.
+        if (Language.class.isAssignableFrom(type)) {
+            Language language;
+            try{
+                language = Language.valueOf(valueStr);
+            } catch (Exception e) {
+                reportProblemWithFragment("Provided language code "+valueStr+" is no valid language code", fragment);
+                return null;
+            }
+            return language;
+        }
+        
+        // Cannot convert...
+        return null;
+    }
+
+     */
+    @Override
+    public Object convertSpecialType(Class<?> type, String valueStr, String fragment) {
+
+        // Check if type is a subtype of E
+        Class<E> eeeClass = null;
+        try {
+            eeeClass = (Class<E>)type;
+        } catch (Exception e) {
+            // It's not an entity eeeClass is still null;
+            // We do nothing, it's noraml.
+        }
+        
+        // Try to convert with findEntity.
+        Object result = null;
+        if (eeeClass != null) {
+            result = findEntity(eeeClass, valueStr);
+        }
+        
+        // Maybe result is still null => descendent may try further to convert.
+        return result;
     }
     
 }

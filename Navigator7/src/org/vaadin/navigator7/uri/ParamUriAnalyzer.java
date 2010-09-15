@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.vaadin.navigator7.NavigableApplication;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Window;
 
 /**
@@ -198,6 +199,11 @@ public class ParamUriAnalyzer extends UriAnalyzer {
              + (paramName3 != null ? paramsSeparator + paramName3 + valueSeparator + paramValue3 : "");
     }   
     
+    public String getFragment(Class<? extends Component> pageClass, Object ... posParams) {
+        return ParamInjector.generateFragment(pageClass, posParams, null);   
+    }
+    
+    
     /** Easy method to add a named parameter to an existing fragment
      */
     public String addFragment(String fragment, String paramName, String paramValue) {
@@ -265,4 +271,15 @@ public class ParamUriAnalyzer extends UriAnalyzer {
         currentWindow.showNotification(problemDescription + "<br/>", fragment, Window.Notification.TYPE_HUMANIZED_MESSAGE);
     }
 
+    /** Perform last chance convertion
+     * Override me for application-wide convertion, as for example, a Lanugage enum (FR, EN,...) to be converted from String "FR" to the language enum value Language.FR
+     * If you need it for only one page, make your page implement TypeConvertor.
+     * The other direction of the convertion (object to string) is done with Object.toString().
+     * 
+     * @param fragment should be useless. May be used to display a complete error message. */
+    public Object convertSpecialType(Class<?> type, String valueStr, String fragment) {
+        reportProblemWithFragment("Invalid parameter value "+valueStr, fragment);
+        return null;  // Convertion failed, by default. Your method would probably try to actually convert first.
+    }
+    
 }

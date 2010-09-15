@@ -24,14 +24,15 @@ public abstract class NavigableApplication extends Application implements Transa
     static protected ThreadLocal<NavigableAppLevelWindow> currentNavigableAppLevelWindow = new ThreadLocal<NavigableAppLevelWindow>();
     static protected ThreadLocal<String> veryInitialUriFragment = new ThreadLocal<String>();  // Trick until further version of Vaadin. See comment in transactionListener below
 
-    
+    private WebApplication webApplication = null;  // Trick. Useless because of WebApplication.getCurrent(), but ..... sometimes we know the window (-> v6 Application) but not the v7 WebApplication, and we are not in a usual web thread. This is the case of File upload event listeners.
     
 
     /** Don't override me, because you are not supposed to create any window by yourself */
     @Override
     public void init() {
+        webApplication = WebApplication.getCurrent();
         // Defensive programming.
-        if (WebApplication.getCurrent().getNavigatorConfig().getPagesClass().size() == 0) {
+        if (webApplication.getNavigatorConfig().getPagesClass().size() == 0) {
             throw new IllegalStateException("No page in configuration. You should register pages in the constructor of your NavigableApplication sub-class," +
             		" typically by calling NavigableApplication.registerPages() method." +
             		" If you did, then no page has been found. Check your settings as the presence of the @Page annotation on your pages.");
@@ -145,6 +146,12 @@ public abstract class NavigableApplication extends Application implements Transa
         return currentNavigableAppLevelWindow.get();
     }
 
+    public WebApplication getWebApplication() {
+        return webApplication;
+    }
+
+
+
     public static String getVeryInitialUriFragment() {
         return veryInitialUriFragment.get();
     }
@@ -181,7 +188,6 @@ public abstract class NavigableApplication extends Application implements Transa
         currentNavigableAppLevelWindow.remove();
         veryInitialUriFragment.remove();
     }
-
 
     
 

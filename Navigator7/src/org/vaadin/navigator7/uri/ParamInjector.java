@@ -2,7 +2,6 @@ package org.vaadin.navigator7.uri;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -129,7 +128,7 @@ public class ParamInjector {
             Field field = namedFieldMap.get(name);
             Param paramAnnotation = field.getAnnotation(Param.class);
             if (paramAnnotation.required()) {
-                if (namedParams.get(name) == null) {
+                if (namedParams == null || namedParams.get(name) == null) {
                     throw new RuntimeException("In class "+pageClass+", the named field " + field + 
                             " is required. But your provide no parameter with name "+name);
                 }
@@ -137,19 +136,21 @@ public class ParamInjector {
         }
         
         ////// 4. We process the namedParams to build the second half of the fragment.
-        for (String name : namedParams.keySet()) {
-            Field field = namedFieldMap.get(name);
-            if (field == null) {
-                throw new RuntimeException(
-                        "You provide a named parameter (name="+name+")," +
-                        " but there is no @Param anotated named field with that name "+
-                        "in class "+pageClass+".");
-                
+        if (namedParams != null) {
+            for (String name : namedParams.keySet()) {
+                Field field = namedFieldMap.get(name);
+                if (field == null) {
+                    throw new RuntimeException(
+                            "You provide a named parameter (name="+name+")," +
+                            " but there is no @Param anotated named field with that name "+
+                            "in class "+pageClass+".");
+
+                }
+                Object value = namedParams.get(name);
+
+                String paramValueStr = convertObjectToString(value, field);
+                fragment = paramUriAnalyzer.addFragment(fragment, name, paramValueStr); 
             }
-            Object value = namedParams.get(name);
-            
-            String paramValueStr = convertObjectToString(value, field);
-            fragment = paramUriAnalyzer.addFragment(fragment, name, paramValueStr); 
         }
         
         return fragment;
@@ -202,7 +203,7 @@ public class ParamInjector {
                 field.setAccessible(true);  // Enable access to private fields.
                 Param paramAnnotation = field.getAnnotation(Param.class);
 
-                boolean required = isValueRequired(field, paramAnnotation);
+                boolean required = paramAnnotation.required();
                 if (required && !field.getType().isPrimitive() && field.get(annotatedObject)==null) {
                     throw new RuntimeException("Missing value for required field " + field + ". Please provide a (non null) value or user @Param(required=false).");
                 }
@@ -353,7 +354,7 @@ public class ParamInjector {
             }
             
             //// Check required presence
-            boolean required = isValueRequired(field, paramAnnotation);
+            boolean required = paramAnnotation.required();
             if (required && valueStr==null) {
                 problem = "Required value for parameter ";
                 if (paramAnnotation.pos() > -1) {  // Position provided
@@ -362,9 +363,6 @@ public class ParamInjector {
                     problem += "named '"+getParameterName(field, paramAnnotation)+"'";
                 }
                 problem += " not found.";
-                if (field.getType().isPrimitive()) {
-                    problem += " Please note that primitive types are always requiered (the case here).";
-                }
                 return problem;
             }
 
@@ -385,18 +383,6 @@ public class ParamInjector {
         return problem;  // Null in most cases (means no problem).
     }
 
-    static private boolean isValueRequired(Field field, Param paramAnnotation) {
-        boolean required;
-        if (field.getType().isPrimitive()) {
-            required = true;
-            // Here we'd like to detect if the programmer has provided a value for paramAnnotation.required() or if the value is the default.
-            // Because if he provided a "false" value here (non default), we should throw an exception.
-            // Unfrotunately, it seems not to be possible (as far as I know) - John Rizzo 2010-06
-        } else {
-            required = paramAnnotation.required();
-        }
-        return required;
-    }
 
     /** 
      * 
@@ -447,23 +433,33 @@ public class ParamInjector {
                     // Is it a special field that the object wants to convert?
                     if (o instanceof TypeConvertor) {
                         value = ((TypeConvertor)o).convertSpecialType(type, valueStr);
+                        if (value !=null && !type.isAssignableFrom(value.getClass())) {
+                            throw new RuntimeException("Your overriden (page).convertSpecialType method returned an object of type ("+value.getClass()+") incompatible with the expected type that we have provided as parameter ("+type+")");
+                        }
+
                     }
+
+                    
                     
                     if (value == null) { // No, descendant did not want to convert that
 
-                        // Is it an entity?
+                        // Is it an application-wide special type (probably an entity)?
                         ParamUriAnalyzer paramUriAnalyzer = WebApplication.getCurrent().getUriAnalyzer();
-                        if (paramUriAnalyzer instanceof EntityUriAnalyzer<?>) { // This application supports entity retreival from params.
-                            EntityUriAnalyzer<?> entityUriAnalyzer = (EntityUriAnalyzer<?>)paramUriAnalyzer;
-                            try {
-                                value = entityUriAnalyzer.findEntity(type, valueStr);
-                            } catch(Exception e) {
-                                value = null;
+                        value = paramUriAnalyzer.convertSpecialType(type, valueStr, null);   // Will probably call EntityUriAnalyzer.findEntity().
+
+                        if (value !=null && !type.isAssignableFrom(value.getClass())) {
+                            throw new RuntimeException("Your overriden (ParamUriAnalyzer).convertSpecialType method returned an object of type ("+value.getClass()+") incompatible with the expected type that we have provided as parameter ("+type+")");
+                        }
+                        
+                    }
+
+                    if(value == null) { // Still not converted. Let's try an enum conversion.
+                        if (Enum.class.isAssignableFrom(type)) {  // Is it an enum.
+                            try{
+                                value = Enum.valueOf(type, valueStr);
+                            } catch (Exception e) {
+                                // Do nothing, just cannot convert and value remains null.
                             }
-                        } 
-                    } else {  // It has been converted by the descendant. But maybe the descendant is wrongly implemented.
-                        if (!type.isAssignableFrom(value.getClass())) {
-                            throw new RuntimeException("Your overriden convertSpecialType method returned an object of type ("+value.getClass()+") incompatible with the expected type that we have provided as parameter ("+type+")");
                         }
                     }
                     
@@ -536,7 +532,7 @@ public class ParamInjector {
     static public String convertObjectToString(Object value, Field field) {
         field.setAccessible(true);  // Enable access to private fields.
         Class type = field.getType();
-        if (! type.isAssignableFrom(value.getClass())) {
+        if (! areTypesCompatible(type, value.getClass()) ) {
             throw new RuntimeException("Parameter value '"+value+"' provided for field '"+field+"' has no compatible type. " +
                     "Value type = "+value.getClass()+". Field type = "+type+
             		" It's probably a bug in your code (when creating a link to a ParamPage?).");
@@ -549,6 +545,21 @@ public class ParamInjector {
             return value.toString();
         }
 
+    }
+
+    
+    /** true if a value of type classSource could be assigned in a field of type classTarget */
+    // This method probably exists (and is more robust) in a reflection framework. Use the framework instead of the code below when Vaadin7 will have selected its reflection framework.
+    static private boolean areTypesCompatible(Class<?> classTarget, Class<?> classSource) {
+        String s1 = classTarget.getSimpleName().toLowerCase();
+        String s2 = classSource.getSimpleName().toLowerCase();
+//        System.out.println("|"+s1 + "|  |"+s2+"|" + s1.equals(s2));
+        return classTarget.isAssignableFrom(classSource) 
+            || s1.equals(s2)  // Example "boolean" vs "Boolean".
+            || ( classTarget.getSimpleName().equals("int") && classSource.getSimpleName().equals("Integer"))
+            || ( classTarget.getSimpleName().equals("Integer") && classSource.getSimpleName().equals("int"))
+            || ( classTarget.getSimpleName().equals("char") && classSource.getSimpleName().equals("Character"))
+            || ( classTarget.getSimpleName().equals("Character") && classSource.getSimpleName().equals("char"));
     }
 
     /** returns null if the parameter is no entity (it could be a Double, for example)
