@@ -23,7 +23,7 @@ public abstract class EntityUriAnalyzer<E> extends ParamUriAnalyzer {
     /** Override this method to define how to access your DB.
      * It's probably as simple as: return entityManager.find(entityClass, pk);
      * What depends much on your application is how you get a valid instance from your entityManager.
-     * If you JPA static utility methods, it's easy.
+     * If you use JPA static utility methods, it's easy.
      * If you use Spring, you have 2 options:
      * - Make your descendent of EntityUriAnalyzer a Spring bean (with the @Component annotation)
      *   and define a @PersistenceContext EntityManager em attribute (or an @Autowired generic dao). 

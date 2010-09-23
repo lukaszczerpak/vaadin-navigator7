@@ -38,7 +38,6 @@ import com.vaadin.ui.Window;
  */
 public class ParamUriAnalyzer extends UriAnalyzer {
 
-    
     protected String paramsSeparator = "/";   // e.g.: param1=value/param2=222/param3=ABC   Could be "&" also (change the value in the constructor of your descendant).
     protected String valueSeparator = "=";    // e.g.: id=123  (key is id, value is 123)
 

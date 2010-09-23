@@ -25,7 +25,7 @@ public class PageInvocation {
     protected boolean pagePlaced;  // true when the page has been placed (no interceptor interrupted the call chain).
     
     /** true => we'll set the URI (with the page name and params) when invoking the page.
-     * when the page change results from an URI change event, we don't want to rechange the URI.
+     * When the page change results from an URI change event, we don't want to rechange the URI.
      * If an interceptor decides to change the pageClass and/or params, it may change needToChangeUri to true to have a correct URI in the browser.
      */
     protected boolean needToChangeUri; 

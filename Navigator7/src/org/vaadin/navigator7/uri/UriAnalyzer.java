@@ -48,14 +48,9 @@ public class UriAnalyzer {
     
     /** Creates a string for the URI. e.g. "Auction/1234".  In the browser it will be "http://domain.com/MyApplication/#Auction/1234".
      * 
-     * This poor method is static because PageResource needs it and may itself be used in a batch thread outside a web application.
-     * See explanation here: http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481
-     * 
      * @param params may be null if no param.
      * @param withAnchor true means you want a # in front of the result (as "#Auction/1234"  */
-    public
-    static  // See why in Javadoc above.    
-    String buildFragmentFromPageAndParameters(Class<? extends Component> pageClass, String params, boolean withAnchor) {
+    public String buildFragmentFromPageAndParameters(Class<? extends Component> pageClass, String params, boolean withAnchor) {
         if ("".equals(params)) {
             params = null;  // One case for both.
         }
@@ -65,20 +60,12 @@ public class UriAnalyzer {
         String pageName;
         boolean isCrawlable;
         Class<? extends Component> homePageClass;
-        
-        
-        if (webApp != null) { // Normal case, we are in a web thread
-            NavigatorConfig navigatorConfig = webApp.getNavigatorConfig();
-            homePageClass = navigatorConfig.getHomePageClass();
 
-            pageName = navigatorConfig.getPageName(pageClass);
-            isCrawlable = navigatorConfig.isPageCrawlable(pageClass);
-            
-        } else { // We are probably called in the context of a batch
-            pageName = NavigatorConfig.computePageName(pageClass);
-            isCrawlable = NavigatorConfig.computeIsCrawlable(pageClass);
-            homePageClass = null;  // We just can't know unless we have a navigatorConfig instance.
-        }
+        NavigatorConfig navigatorConfig = webApp.getNavigatorConfig();
+        homePageClass = navigatorConfig.getHomePageClass();
+
+        pageName = navigatorConfig.getPageName(pageClass);
+        isCrawlable = navigatorConfig.isPageCrawlable(pageClass);
         
         if (isCrawlable) {
             pageName = "!" + pageName;

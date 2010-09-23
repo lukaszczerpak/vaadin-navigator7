@@ -23,8 +23,7 @@ public class ParamPageResource extends PageResource {
      * Contrary to its ancestor, not all the params are ready in the constructor, because of the addParam() method. */
     @Override
     public String getURL(){
-        /* WebApplication.getCurrent().getUriAnalyzer(). */ // No, because of batch jobs:  http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481  
-        return UriAnalyzer.
+        return WebApplication.getCurrent().getUriAnalyzer().
             buildFragmentFromPageAndParameters(pageClass, getParams(), true);
     }
     

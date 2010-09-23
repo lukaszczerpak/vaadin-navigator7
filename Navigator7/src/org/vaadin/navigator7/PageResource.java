@@ -27,8 +27,7 @@ public class PageResource extends ExternalResource{
 
     public PageResource(Class<? extends Component> pageClass, String params) {
         super(
-            /* WebApplication.getCurrent().getUriAnalyzer(). */ // No, because of batch jobs:  http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481  
-            UriAnalyzer.
+            WebApplication.getCurrent().getUriAnalyzer().
                 buildFragmentFromPageAndParameters(pageClass, params, true)
         );
         // For example  "#Auction/123456"
@@ -45,13 +44,4 @@ public class PageResource extends ExternalResource{
         return pageClass;
     }
     
-    
-
-//    public PageResource(Class<? extends Component> pageClass, UriParam uriParam) {
-//        super(WebApplication.getCurrent().getUriAnalyzer()
-//                .buildFragmentFromPageAndParameters(pageClass, uriParam.generateFragment(), true) );
-//        // For example  "#Auction/123456"
-//        this.pageClass = pageClass;
-//    }
-
 }

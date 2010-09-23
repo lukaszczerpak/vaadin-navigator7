@@ -60,9 +60,7 @@ public class NavigatorConfig implements Serializable {
         setHomePageClass(pageClasses[0]);  // By default. setHomePage can explicitely be called to specify another class.
     }
 
-    public 
-    static  // Static because (hack): http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481 
-    String computePageName(Class<? extends Component> pageClass) { 
+    public String computePageName(Class<? extends Component> pageClass) { 
         // Discover the name through the @Page annotation.
         String pageName;
         Page pageAnnotation = pageClass.getAnnotation(Page.class);
@@ -80,7 +78,7 @@ public class NavigatorConfig implements Serializable {
         return pageName;
     }
 
-    public static boolean computeIsCrawlable(Class<? extends Component> pageClass) {
+    public boolean computeIsCrawlable(Class<? extends Component> pageClass) {
         Page pageAnnotation = pageClass.getAnnotation(Page.class);
         return (pageAnnotation != null && pageAnnotation.crawlable());
     }
@@ -120,9 +118,7 @@ public class NavigatorConfig implements Serializable {
      * If the given class name is "MyGreatPage", then the result will be "MyGreat".
      * If the given class name is "Hello", then the result will be "Hello".
      */
-    public
-    static  // Static because (hack): http://vaadin.com/forum/-/message_boards/message/216481?_19_delta=10&_19_keywords=&_19_advancedSearch=false&_19_andOperator=true&cur=3#_19_message_216481 
-    String computePageNameFromClassName(String simpleName) {
+    public String computePageNameFromClassName(String simpleName) {
         if (simpleName.endsWith("Page")) {
             simpleName = simpleName.substring(0, simpleName.length()-4); // Remove the word "Page".
         }
