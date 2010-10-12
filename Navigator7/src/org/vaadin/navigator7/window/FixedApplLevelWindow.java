@@ -1,6 +1,8 @@
 package org.vaadin.navigator7.window;
 
 
+import org.vaadin.navigator7.Navigator;
+
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Layout;
@@ -19,6 +21,12 @@ public abstract class FixedApplLevelWindow extends NavigableAppLevelWindow {
 
     private int pageWidth = 980;  // In pixels. 980px is a good size for 1027*768 res screens. You can change this default by calling setPageWidth().
 
+
+    @Override
+    public void attach() {
+        super.attach();
+        pageContainer.addStyleName("FixedPageTemplate-bandOuterLayoutPage");
+    }
 
     /** Sets the page in the window, at the right place (and removes the previous one)
      * Override this (don't forget to call super) if you want to do something everytime a new page is being placed */

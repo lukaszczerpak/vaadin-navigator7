@@ -17,16 +17,16 @@ import com.vaadin.ui.Layout;
  */
 public abstract class NavigableAppLevelWindow extends AppLevelWindow {
 
-    private Navigator navigator;
+    protected Navigator navigator;
     
     protected Component page;  // Current page being displayed. null if no page set yet.
-    public ComponentContainer pageContainer;  // Contains page (there could be no page yet, so we cannot rely on this.page.getParent() because this.page could be null. Instantiated by descendants.
+    protected ComponentContainer pageContainer;  // Contains page (there could be no page yet, so we cannot rely on this.page.getParent() because this.page could be null. Instantiated by descendants.
     
 
     @Override
     public void attach() {
         // Main layout creation. Do that before you add anything to the Window.
-        Layout main = new CssLayout(); 
+        Layout main = createMainLayout();
         main.addStyleName("PageTemplate-mainLayout");
 //        main.setWidth("100%");   If you do that instead of the addStyleName (containing a width:100%;) above, Vaadin JavaScript will recompute the width everytime you resize the browser.
         this.setContent(main);    
@@ -39,6 +39,14 @@ public abstract class NavigableAppLevelWindow extends AppLevelWindow {
         pageContainer.addStyleName("FixedPageTemplate-bandOuterLayoutPage");
     }
 
+    /** Override (rare) this if you need something else than this CssLayout,
+     * or if you need to do something the the layout (as adding a style) before it's put in the Window.
+     */
+    protected Layout createMainLayout() {
+        return new CssLayout(); 
+
+    }
+    
     
     /** Should fill the window with template components (as a header, footer,...) including a placeholder for the current page.
      * @return the container (probably a Layout) of the page, where the pages should be created and replaced as the user navigates. */
