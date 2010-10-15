@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.vaadin.navigator7.interceptor.ExceptionPage;
 import org.vaadin.navigator7.interceptor.Interceptor;
 import org.vaadin.navigator7.interceptor.ParamChangeListenerInterceptor;
 import org.vaadin.navigator7.interceptor.ParamInjectInterceptor;
@@ -195,6 +196,9 @@ public class WebApplication {
     ///////////////////////////////////////////// Navigable stuff (to be moved in a NavigableWebAppliction subclass?) /////////////////////////////////////////////////////
     
     public WebApplication() {
+        // Register this page used for displaying exceptions (by default).
+        registerPages(new Class[] {ExceptionPage.class});
+        
         // Register default interceptors
         registerInterceptors();
     }
