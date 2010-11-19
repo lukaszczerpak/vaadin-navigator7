@@ -243,7 +243,7 @@ public class Navigator
     /** Don't call this directly. Prefer navigateTo
      * Starts Interceptors chain invocation, reusing the current (given) page.
      * 
-     * @param pageClass
+     * @param page already instantiated (probably an url fragment change).
      * @param params String to add in the URI, after the page name. Updates the URL displayed in the browser. Set "" if you need no parameter.
      */
     public void invokeInterceptors (Component page, String params, boolean needToChangeUri) {

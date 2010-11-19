@@ -18,7 +18,9 @@ public class ParamInjectInterceptor implements Interceptor {
             // We don't call pageInvocation.getPageInstance() before we are sure it contains @Param fields,
             // because getPageInstance() will probably trigger page instantiation, and we only do it if necessary. 
             Component page = pageInvocation.getPageInstance();
-            if (ParamInjector.verifyAndInjectParams( page, pageInvocation.getParams() )) {
+            if (ParamInjector.verifyAndInjectParams( page, pageInvocation.getParams(), 
+                    !pageInvocation.isInstanceNew()  // In case it's a reused instance (param in URI changed), we'll cleanup non given params. 
+                    )) {
                 pageInvocation.invoke();
             } // else we stop page invocation chain because of bad parameters (notification shown to user already).
         } else {  // Not ParamPage => we do nothing special

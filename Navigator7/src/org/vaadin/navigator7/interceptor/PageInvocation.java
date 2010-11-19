@@ -6,6 +6,7 @@ import org.vaadin.navigator7.Navigator;
 import org.vaadin.navigator7.WebApplication;
 
 import com.vaadin.ui.Component;
+import com.vaadin.ui.AbstractSelect.NewItemHandler;
 
 /** Context of execution for the interceptors chain, then for the page.
  * In your interceptor, you typically do something, then call pageInvocation.invoke(), then maybe something else.
@@ -23,6 +24,7 @@ public class PageInvocation {
     protected String params;
     protected Component pageInstance;
     protected boolean pagePlaced;  // true when the page has been placed (no interceptor interrupted the call chain).
+    protected boolean isInstanceNew = true;  // Is it a new page instance that PageInvocation instantiated (new) or a reused page ?
     
     /** true => we'll set the URI (with the page name and params) when invoking the page.
      * When the page change results from an URI change event, we don't want to rechange the URI.
@@ -47,6 +49,7 @@ public class PageInvocation {
             boolean needToChangeUri2) {
         this(navigator2, page.getClass(), params2, needToChangeUri2);
         pageInstance = page;
+        isInstanceNew = false;
     }
 
 
@@ -86,6 +89,7 @@ public class PageInvocation {
             try {
                 // instantiate page like: auctionPage = new AuctionPage();
                 pageInstance = (Component) pageClass.newInstance();
+                isInstanceNew = true;
             } catch (Exception e) {
                 RuntimeException e2 = new RuntimeException("Problem while instantiating page class ["+pageClass+"]. Probably bug. Does your page class have a no-arg constructor?", e);
                 placeExceptionPage(e2);
@@ -129,6 +133,11 @@ public class PageInvocation {
 
     public boolean isPagePlaced() {
         return pagePlaced;
+    }
+
+
+    public boolean isInstanceNew() {
+        return isInstanceNew;
     }
 
 

@@ -76,7 +76,7 @@ public class ParamTestPage extends VerticalLayout implements ParamChangeListener
         ParamUriAnalyzer analyzer = WebApplication.getCurrent().getUriAnalyzer();
         
         pr = (new ParamPageResource(ParamTestPage.class, "userId=AAA")); 
-        col2.addComponent(new Link(pr.getURL() , pr));   //// Exception here (hopefully) because parameters are bad (missing ssn, for example).
+//        col2.addComponent(new Link(pr.getURL() , pr));   //// Exception here (hopefully) because parameters are bad (missing ssn, for example).
         col2.addComponent(new Label("&nbsp; 1st param contains a = sign while it's not supposed to;" +
         		" userid is not numeric; ssn is missing<br/>&nbsp;", Label.CONTENT_XHTML));
 

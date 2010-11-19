@@ -44,10 +44,20 @@ import java.lang.annotation.Target;
  * 
  * If you use a position for a named field, it will contain the name and the value.
  * @Param(pos=0)
- * String myFirstField;   // Will contain "myField=1111".
+ * String myFirstField;   // Will contain "myField=1111" (and not just "1111", because this is no named field but a positional field)
  * 
  * @Param(pos=0)
  * int myFirstField;      // Will show a conversion message to the user ("myField=1111" cannot be converted into an int (while "1111" well)).
+ * 
+ * 
+ * CLEAN-UP -------------------
+ * Fields having the @Param annotation are cleaned up (assigned to null) when the URI changes if no value is provided.
+ * When the user goes to a page and it is instantiated, no clean-up happen, you can safely assign default values to your parameters in the constructor.
+ * After that, when the user on that page changes the parameters in the URL (by clicking a link or manually),
+ * ParamChangeListenerInterceptor calls your page .paramChanged() method.
+ * Before paramChanged() is called, the ParamInjectInterceptor will set values to your @Param fields from the strings of the URI.
+ * If, for a field, no value is given, then cleanup occurs (that field is assigned to null), so you can make the difference from having that value being provided in the URI.
+ * 
  * 
  * 
  * @author John Rizzo - BlackBeltFactory.com

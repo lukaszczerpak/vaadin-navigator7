@@ -315,9 +315,11 @@ public class ParamInjector {
 /////////////////////////////////////////////// Param from URI injection into page ////////////////////////////    
 /////////////////////////////////////////////// Param from URI injection into page ////////////////////////////    
     
-    /** @return false if params not valid (user has been notified) */
-    public static boolean verifyAndInjectParams(Component page, String params) {
-        String problem = validateAndInject(page, params);
+    /** 
+     * @param cleanUpNonGivenParams true if we have to set to null parameters not given in the params String. Useful in case use stay on the page but change a param in the URI. We inject that new param but we also nullify others.
+     * @return false if params not valid (user has been notified) */
+    public static boolean verifyAndInjectParams(Component page, String params, boolean cleanUpNonGivenParams) {
+        String problem = validateAndInject(page, params, cleanUpNonGivenParams);
 
         if (problem!=null) {
             ParamUriAnalyzer paramUriAnalyzer = WebApplication.getCurrent().getUriAnalyzer();
@@ -332,7 +334,7 @@ public class ParamInjector {
     
     /** Perform the annotation based validation, 
      * then (if no problem found) call extraValidate if annotatedObject implements ExtraValidator */ 
-    static public String validateAndInject(Object annotatedObject, String fragment) {
+    static public String validateAndInject(Object annotatedObject, String fragment, boolean cleanUpNonGivenParams) {
         ParamUriAnalyzer paramUriAnalyzer = WebApplication.getCurrent().getUriAnalyzer();
         String problem = null;
         
@@ -368,12 +370,15 @@ public class ParamInjector {
 
             //// Convert that String into the excepted type.
             // The code below is probably much weaker than a specialized annotation library (that I cannot use before Vaadin7)
-            if (valueStr!=null) {
+            if (valueStr!=null) { // If a value is given, we certainly assign.                  
                 problem = convertAndAssignField(annotatedObject, field, valueStr);
                 if (problem!=null) {
                     return problem;  // We stop here.
                 }
+            } else if (cleanUpNonGivenParams) { // if we have to cleanup, and there is no value to assign
+                assignFieldToNullIfPossible(annotatedObject, field);
             }
+
             
         }
         
@@ -383,11 +388,21 @@ public class ParamInjector {
         return problem;  // Null in most cases (means no problem).
     }
 
+    
+    static private void assignFieldToNullIfPossible(Object o, Field field) {
+        try {
+            field.setAccessible(true);  // Enable access to private fields.
+            field.set(o, null);
+        } catch (Exception e) {
+            // Do nothing, we tried but it may not be possible (i.e. a primitive type).
+        }
+    }
+
 
     /** 
      * 
      * @param field
-     * @param valueStr
+     * @param valueStr should not be null
      * @return non null if problem (as string to int conversion problem).
      */
     // This method probably exists (and is more robust) in a reflection framework. Use the framework instead of the code below when Vaadin7 will have selected its reflection framework.
