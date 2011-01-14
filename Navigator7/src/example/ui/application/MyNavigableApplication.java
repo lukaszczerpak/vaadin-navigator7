@@ -10,8 +10,7 @@ import example.ui.page.ParamTestPage;
 import example.ui.page.TicketPage;
 
 /**
- * In your NavigableApplication class, you define the list of pages,
- * and your descendent of NavigableAppLevelWindow that the application must instantiate.
+ * In your NavigableApplication class, you define which Window to create (MyAppLevelWindow).
  * 
  * @author John Rizzo - BlackBeltFactory.com
  */
