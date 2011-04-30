@@ -7,7 +7,7 @@ import example.model.Company;
 import example.model.Product;
 
 /** Example of EntityUriAnalyzer.
- * Your Navigator7 can live with the deafault provided ParamUriAnalyzer (only working with Strings and simple types).
+ * Your Navigator7 can live with the default provided ParamUriAnalyzer (only working with Strings and simple types).
  * If you have a DB you probably want an EntityUriAnalyzer.
  * 
  * @author John Rizzo - BlackBeltFactory.com

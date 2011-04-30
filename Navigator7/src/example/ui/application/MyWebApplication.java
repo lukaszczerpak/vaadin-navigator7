@@ -1,8 +1,10 @@
 package example.ui.application;
 
 import org.vaadin.navigator7.WebApplication;
+import org.vaadin.navigator7.Navigator.NavigationEvent;
 import org.vaadin.navigator7.interceptor.NavigationWarningInterceptor;
 import org.vaadin.navigator7.interceptor.PageChangeListenersInterceptor;
+import org.vaadin.navigator7.interceptor.PageChangeListenersInterceptor.PageChangeListener;
 
 import example.ui.page.DashboardPage;
 import example.ui.page.EditorPage;
@@ -19,7 +21,6 @@ import example.ui.page.TicketPage;
  */
 public class MyWebApplication extends WebApplication {
 
-    private PageChangeListenersInterceptor pageChangeListenerInterceptor;
 
     public MyWebApplication() {
         // We need to do that in the constructor (and not later), to ensure that the init method in the ancestor has the PageTemplate and the pages.
@@ -39,13 +40,24 @@ public class MyWebApplication extends WebApplication {
     protected void registerInterceptors() {
         // 1st interceptor to call: check if user really wanna quit.
         registerInterceptor( new NavigationWarningInterceptor() );
-        registerInterceptor( pageChangeListenerInterceptor = new PageChangeListenersInterceptor() );
+        
+        // 2nd interceptor: for listening all those who want to be notified of any page change (for all users).
+        // In the header of every window, we have a label to update for every change.
+        PageChangeListenersInterceptor pclsInterceptor = new PageChangeListenersInterceptor();
+        pclsInterceptor.addPageChangeListener( new PageChangeListener() {
+            @Override  public void pageChanged(NavigationEvent event) {
+                ((MyAppLevelWindow)MyNavigableApplication.getCurrentNavigableAppLevelWindow()).getNavLabel()
+                .setValue("PageChangeListener: pageClass = "+ event.getPageClass() +
+                        " -- params = " + event.getParams());
+                // Note: in a real application, I typically update a google tracker here (attached to MyAppLevelWindow, as our example navLabel is).
+            }
+        });
+        registerInterceptor( pclsInterceptor );
+
+        
         super.registerInterceptors();   // Default interceptors.
     }
 
-    public PageChangeListenersInterceptor getPageChangeListenerInterceptor() {
-        return pageChangeListenerInterceptor;
-    }
     
     
 }

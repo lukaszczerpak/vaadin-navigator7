@@ -23,7 +23,7 @@ import example.ui.page.TicketPage;
 
 /** Defines the template (header/footer/...) of our application level windows
  * 
- * Demo of: Header/Footer templating. Note the subtle overriding of createComponents to refine the layout apprearance.
+ * Demo of: Header/Footer templating. Note the subtle overriding of createComponents to refine the layout appearance.
  *          NavigationListener to get any page transition event.
  *          Navigator.navigateTo()
  * 
@@ -31,6 +31,8 @@ import example.ui.page.TicketPage;
  */
 public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
 
+    Label navLabel;  // Label showing global navigation events (useless, just for the demo). 
+    
     @Override
     protected Component createHeader() {
         VerticalLayout header = new VerticalLayout();
@@ -45,19 +47,23 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
         header.setComponentAlignment(l, Alignment.TOP_RIGHT);
 
         ///// NavigationListener label
-        final Label navLabel = new Label();
+        navLabel = new Label();
         navLabel.setWidth(null);
         header.addComponent(navLabel);
         header.setComponentAlignment(navLabel, Alignment.TOP_RIGHT);
         
-        ((MyWebApplication)MyWebApplication.getCurrent())
-            .getPageChangeListenerInterceptor()
-            .addPageChangeListener( new PageChangeListener() {
-            @Override  public void pageChanged(NavigationEvent event) {
-                navLabel.setValue("PageChangeListener: pageClass = "+ event.getPageClass() +
-                                                  " -- params = " + event.getParams());
-            }
-        });
+        ///// The (commented) code below is a very tricky huge memory leak: 
+        // do not accumulate in the global interceptor, references to inner classes (that you never remove from the list of listeners)
+        // that (the inner classes) point to their outer class (the Window, with all the UI widgets in it) which cannot be garbage collected.
+        // The correct version of this is in MyWebApplication.
+//        ((MyWebApplication)MyWebApplication.getCurrent())
+//            .getPageChangeListenerInterceptor()
+//            .addPageChangeListener( new PageChangeListener() {
+//            @Override  public void pageChanged(NavigationEvent event) {
+//                navLabel.setValue("PageChangeListener: pageClass = "+ event.getPageClass() +
+//                                                  " -- params = " + event.getParams());
+//            }
+//        });
 
         ///// Menu
         // Design note: this example is bad: 
@@ -144,6 +150,10 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
         ComponentContainer result = super.createComponents();
         this.getFooterBand().addStyleName("footer");   // We apply the footer to the whole outer band, not only to the fixed width inner band.
         return result;
+    }
+
+    public Label getNavLabel() {
+        return navLabel;
     }
 
 }

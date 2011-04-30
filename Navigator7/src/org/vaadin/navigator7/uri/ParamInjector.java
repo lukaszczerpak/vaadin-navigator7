@@ -70,7 +70,7 @@ public class ParamInjector {
         
         /// 1.C We detect if too many parameters have been provided.
         if (posFieldMap.size() < posParams.length) {
-            throw new RuntimeException("In class "+pageClass+", you have defined "+posFieldMap.size()+" field(s). "+
+            throw new RuntimeException("In class "+pageClass+", you have defined "+posFieldMap.size()+" 'positional' field(s). "+
                     "But you provide "+posParams.length+" (more = too many) parameter values.");
         }
         
