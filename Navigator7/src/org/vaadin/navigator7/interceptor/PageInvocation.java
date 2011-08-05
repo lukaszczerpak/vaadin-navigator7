@@ -88,7 +88,7 @@ public class PageInvocation {
         if (pageInstance == null) {
             try {
                 // instantiate page like: auctionPage = new AuctionPage();
-                pageInstance = (Component) pageClass.newInstance();
+                pageInstance = WebApplication.getCurrent().getPageInstantiationStrategy().createPageInstance(pageClass, params);
                 isInstanceNew = true;
             } catch (Exception e) {
                 RuntimeException e2 = new RuntimeException("Problem while instantiating page class ["+pageClass+"]. Probably bug. Does your page class have a no-arg constructor?", e);
@@ -143,4 +143,7 @@ public class PageInvocation {
 
 
 
+    public interface PageInstantiationStrategy {
+    	<P extends Component> P createPageInstance(Class<P> pageClass, String params) throws Exception;
+    }
 }

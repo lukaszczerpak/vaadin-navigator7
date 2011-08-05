@@ -12,7 +12,10 @@ import org.vaadin.navigator7.interceptor.ExceptionPage;
 import org.vaadin.navigator7.interceptor.Interceptor;
 import org.vaadin.navigator7.interceptor.ParamChangeListenerInterceptor;
 import org.vaadin.navigator7.interceptor.ParamInjectInterceptor;
+import org.vaadin.navigator7.interceptor.PageInvocation.PageInstantiationStrategy;
 import org.vaadin.navigator7.uri.ParamUriAnalyzer;
+
+import com.vaadin.ui.Component;
 
 /**
  * You may extend this class to manually register your pages. If you do that, you must specify the class name as an init parameter of the NavigableApplicationServlet (as MyWebApplication in this example):
@@ -75,6 +78,7 @@ public class WebApplication {
      */
     static protected WebApplication staticReference;
     
+    private static final PageInstantiationStrategy DEFAULT_PAGE_INSTANTIATION_STRATEGY = new DefaultPageStrategy();
     
     /** Don't hesitate to use this method ;-)
      * Returns null if we are not in a web thread (or a badly initialized web app) */
@@ -245,8 +249,18 @@ public class WebApplication {
         uriAnalyzer = paramUriAnalyzer;
     }
 
+    public PageInstantiationStrategy getPageInstantiationStrategy() {
+    	return DEFAULT_PAGE_INSTANTIATION_STRATEGY;
+    }
 
+    
+    private static class DefaultPageStrategy implements PageInstantiationStrategy {
 
-
+		@Override
+		public <P extends Component> P createPageInstance(Class<P> pageClass,
+				String params) throws Exception {
+			return pageClass.newInstance();
+		}
+    }
     
 }
