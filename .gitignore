@@ -1,0 +1,6 @@
+*.iws
+*.iml
+*.ipr
+/*/build
+/*/classes
+/Navigator7/WebContent/WEB-INF/lib/servlet-api.jar
