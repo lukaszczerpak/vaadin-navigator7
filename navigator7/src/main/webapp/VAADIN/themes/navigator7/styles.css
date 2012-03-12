@@ -1,0 +1,52 @@
+@import url(../reindeer/styles.css);
+
+
+/***************************************************** For the PageTemplate classes of Navigator7 addon. 
+  COPY/PASTE THIS in your styles.css */
+
+/****** I've been forced to require you to copy/paste stuff from this CSS file, because Vaadin 6.3 API prevents us to provide a value for the style attbitute of tags.
+  Vote for this to change the situation :    http://vaadin.uservoice.com/forums/20474-general/suggestions/699562
+  */ 
+  
+.PageTemplate-mainLayout {
+    width:100%
+}
+
+/* Full window width */
+.FixedPageTemplate-bandOuterLayout {
+    width:100%
+}
+
+/* Fixed width inside bandOuterLayout */
+.FixedPageTemplate-bandInnerLayout {
+    margin: 0 auto;  /* Centered inside outer div */
+}
+
+/* Layout containing your pages (probably between a header and a footer) */
+.FixedPageTemplate-layoutPage {
+    padding-top:15px;   /* Not too close from the header */
+	padding-bottom:20px; /* Not too close from the footer */
+}
+
+/* END OF COPY/PASTE */
+
+
+/***************************************************** Example specific to your application. Don't copy/paste this */
+
+.header {
+	background: #FFFFFF   url(vaadin-logo.png) no-repeat scroll left top;  
+}
+
+
+
+.FixedPageTemplate-bandOuterLayoutPage {
+	background: #FFFFFF  url(redKimonoBlondeKatana.jpg) scroll no-repeat right bottom; 
+}
+
+
+.footer {
+	background: #000    url(bg-footer.jpg) repeat-x scroll left top;  
+	color: #AAA;  /* Grey on black */
+	padding: 30px 0;  
+}
+
