@@ -233,6 +233,16 @@ public class WebApplication {
         navigatorConfig.registerPages(packageName);
     }
 
+    public void registerPage(Class clazz)
+    {
+        navigatorConfig.registerPage(clazz);
+    }
+
+    public void unregisterPage(Class clazz)
+    {
+        navigatorConfig.unregisterPage(clazz);
+    }
+
     public void registerInterceptor(Interceptor interceptor) {
         navigatorConfig.getInterceptorList().add(interceptor);
     }

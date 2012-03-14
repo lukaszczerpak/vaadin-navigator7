@@ -1,15 +1,15 @@
 package example.ui.page;
 
+import com.vaadin.ui.*;
+import example.ui.application.MyAppLevelWindow;
+import example.ui.application.MyNavigableApplication;
+import example.ui.application.MyWebApplication;
 import org.vaadin.navigator7.Page;
 import org.vaadin.navigator7.PageResource;
 
 import com.vaadin.terminal.ExternalResource;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
+
+import java.util.Date;
 
 /**
  * Demo of @Page, 
@@ -31,6 +31,7 @@ public class DashboardPage extends CustomComponent {
         mainLayout.setSizeFull();
         setCompositionRoot(mainLayout);
 
+        mainLayout.addComponent(new Label("New Dynamic Page, created at" + new Date().toString()));
         mainLayout.addComponent( new Label("Note the uri: '#dash' instead of 'Dashboard' (page class name)." +
         		" This is due to the @Page(uriName=\"dash\") annotation on the Dashboard class." ));
 
@@ -52,6 +53,24 @@ public class DashboardPage extends CustomComponent {
             gl.addComponent(p);
             p.setSizeFull();
         }
+
+        mainLayout.addComponent(new Button("Add dynamic page", this, "addDynamicPage"));
+        mainLayout.addComponent(new Button("Remove dynamic page", this, "removeDynamicPage"));
     }
+
+    public void addDynamicPage()
+    {
+        MyWebApplication.getCurrent().registerPage(DynamicPage.class);
+        ((MyAppLevelWindow) MyNavigableApplication.getCurrentNavigableAppLevelWindow())
+                .addNavLink("DynamicPage", DynamicPage.class);
+    }
+
+    public void removeDynamicPage()
+    {
+        MyWebApplication.getCurrent().unregisterPage(DynamicPage.class);
+        ((MyAppLevelWindow) MyNavigableApplication.getCurrentNavigableAppLevelWindow())
+                .removeNavLink(DynamicPage.class);
+    }
+
 
 }

@@ -41,23 +41,34 @@ public class NavigatorConfig implements Serializable {
         throw new UnsupportedOperationException("This feature has not been implemented yet. Use the other registerPages method, taking an array of classes as parameter.");
     }
     
-    /** The first page of this array is (by default) the home page */
     public void registerPages(Class[] pageClasses) {
         if (pageClasses.length == 0) {
             throw new IllegalArgumentException("Your array of classes is empty and it should at least contain one page");
         }
         
         for (Class clazz : pageClasses) {
-            if (! Component.class.isAssignableFrom(clazz)) {  // In other words, does pageClass extend Component?
-                throw new IllegalArgumentException("Given classes should extend Component. One of the classes does not: "+clazz);
-            }
-            Class<? extends Component> pageClass = (Class<? extends Component>)clazz;
-
-            
-            addPageClass(pageClass);
+            registerPage(clazz);
         }
+    }
 
-        setHomePageClass(pageClasses[0]);  // By default. setHomePage can explicitely be called to specify another class.
+    public void registerPage(Class clazz) {
+        if (! Component.class.isAssignableFrom(clazz)) {  // In other words, does pageClass extend Component?
+            throw new IllegalArgumentException("Given classes should extend Component. One of the classes does not: "+clazz);
+        }
+        Class<? extends Component> pageClass = (Class<? extends Component>)clazz;
+
+
+        addPageClass(pageClass);
+    }
+
+    public void unregisterPage(Class clazz) {
+        if (! Component.class.isAssignableFrom(clazz)) {  // In other words, does pageClass extend Component?
+            throw new IllegalArgumentException("Given classes should extend Component. One of the classes does not: "+clazz);
+        }
+        Class<? extends Component> pageClass = (Class<? extends Component>)clazz;
+
+
+        removePageClass(pageClass);
     }
 
     public String computePageName(Class<? extends Component> pageClass) { 
@@ -103,10 +114,25 @@ public class NavigatorConfig implements Serializable {
         classToUri.put(pageClass, pageName);  // Uppercase here (see comment on Map definition)
     }
 
-    
-    
+    public void removePageClass(Class<? extends Component> pageClass) {
+        if (computeIsCrawlable(pageClass)) {
+            crawlablePages.remove(pageClass);
+        }
+
+        if (!classToUri.containsKey(pageClass)) {
+            throw new IllegalArgumentException("Removing a page with a class that has not been added in the configuration: ["+pageClass+"]");
+        }
+        String pageName = classToUri.get(pageClass);
+        String lowerCasePageName = pageName.toLowerCase();
+
+        classToUri.remove(pageClass);
+        uriToClass.remove(lowerCasePageName);
+    }
+
     public Class<? extends Component> getHomePageClass() {
-        return homePageClass;
+        return homePageClass == null
+                ? homePageClass = uriToClass.values().iterator().next()
+                : homePageClass;
     }
 
     public void setHomePageClass(Class<? extends Component> hpClassParam) {

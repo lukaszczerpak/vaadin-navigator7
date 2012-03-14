@@ -1,5 +1,6 @@
 package example.ui.application;
 
+import example.ui.page.*;
 import org.vaadin.navigator7.Navigator.NavigationEvent;
 import org.vaadin.navigator7.interceptor.PageChangeListenersInterceptor.PageChangeListener;
 import org.vaadin.navigator7.uri.ParamPageResource;
@@ -13,13 +14,7 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.MenuBar.MenuItem;
 
-import example.ui.page.DashboardPage;
-import example.ui.page.EditorPage;
-import example.ui.page.ParamTestPage;
-import example.ui.page.ProductAPage;
-import example.ui.page.ProductBPage;
-import example.ui.page.SeoPage;
-import example.ui.page.TicketPage;
+import java.util.HashMap;
 
 /** Defines the template (header/footer/...) of our application level windows
  * 
@@ -31,8 +26,10 @@ import example.ui.page.TicketPage;
  */
 public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
 
-    Label navLabel;  // Label showing global navigation events (useless, just for the demo). 
-    
+    Label navLabel;  // Label showing global navigation events (useless, just for the demo).
+    private MenuBar menuBar;
+    private HashMap<Class, MenuItem> dynamicMenuItems = new HashMap<Class, MenuItem>();
+
     @Override
     protected Component createHeader() {
         VerticalLayout header = new VerticalLayout();
@@ -72,52 +69,66 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
         // It internally forwards to the page.
         // But the link does not appears in the browser.
         // Vaadin should propose a MenuBar that also accepts Links as items (instead of Command classes).
-        
-        
-        MenuBar menuBar = new MenuBar();
+
+
+        menuBar = new MenuBar();
         menuBar.setWidth("100%");
         header.addComponent(menuBar);
         header.setComponentAlignment(menuBar, Alignment.BOTTOM_LEFT);
-        
 
-        menuBar.addItem("DashBoard", new MenuBar.Command() {
-            public void menuSelected(MenuItem selectedItem) {
+
+        menuBar.addItem("DashBoard", new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem selectedItem)
+            {
                 getNavigator().navigateTo(DashboardPage.class);
             }
         });
-        menuBar.addItem("Manage Your Tickets", new MenuBar.Command() {
-            public void menuSelected(MenuItem selectedItem) {
+        menuBar.addItem("Manage Your Tickets", new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem selectedItem)
+            {
                 getNavigator().navigateTo(TicketPage.class);
             }
         });
-        menuBar.addItem("Editor", new MenuBar.Command() {
-            public void menuSelected(MenuItem selectedItem) {
+        menuBar.addItem("Editor", new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem selectedItem)
+            {
                 getNavigator().navigateTo(EditorPage.class);
             }
         });
-        menuBar.addItem("Product A 34", new MenuBar.Command() {
-            public void menuSelected(MenuItem selectedItem) {
+        menuBar.addItem("Product A 34", new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem selectedItem)
+            {
                 // If I had a product in a variable p, I'd have written:
 //                getNavigator().navigateTo(new ParamPageResource(ProductAPage.class, p)); 
-                getNavigator().navigateTo(ProductAPage.class, "34"); 
+                getNavigator().navigateTo(ProductAPage.class, "34");
             }
         });
-        menuBar.addItem("Product B 34", new MenuBar.Command() {
-            public void menuSelected(MenuItem selectedItem) {
+        menuBar.addItem("Product B 34", new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem selectedItem)
+            {
                 // If I had a product in a variable p, I'd have written:
                 // getNavigator().navigateTo(Product.class, p.getId().toString());
-                getNavigator().navigateTo(ProductBPage.class, "34"); 
+                getNavigator().navigateTo(ProductBPage.class, "34");
             }
         });
-        menuBar.addItem("ParamTestPage", new MenuBar.Command() {
-            public void menuSelected(MenuItem selectedItem) {
+        menuBar.addItem("ParamTestPage", new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem selectedItem)
+            {
                 getNavigator().navigateTo(
-                    new ParamPageResource(ParamTestPage.class, "Albator-Forever")
-                        .addParam("ssn", "xxx.xxx.xxx"));
+                        new ParamPageResource(ParamTestPage.class, "Albator-Forever")
+                                .addParam("ssn", "xxx.xxx.xxx"));
             }
         });
-        menuBar.addItem("SeoPage", new MenuBar.Command() {
-            public void menuSelected(MenuItem selectedItem) {
+        menuBar.addItem("SeoPage", new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem selectedItem)
+            {
                 getNavigator().navigateTo(SeoPage.class);
             }
         });
@@ -154,6 +165,24 @@ public class MyAppLevelWindow extends HeaderFooterFixedAppLevelWindow {
 
     public Label getNavLabel() {
         return navLabel;
+    }
+
+    public void addNavLink(String title, final Class clazz)
+    {
+        MenuItem menuItem = menuBar.addItem(title, new MenuBar.Command()
+        {
+            public void menuSelected(MenuItem menuItem)
+            {
+                getNavigator().navigateTo(clazz);
+            }
+        });
+        dynamicMenuItems.put(clazz, menuItem);
+    }
+
+    public void removeNavLink(Class clazz)
+    {
+        MenuItem menuItem = dynamicMenuItems.get(clazz);
+        menuBar.removeItem(menuItem);
     }
 
 }
